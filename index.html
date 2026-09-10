@@ -4,13 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport"
       content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Fantasy Dungeon Roguelike</title>
+
+<title>Dungeon World</title>
 
 <style>
 *{
     box-sizing:border-box;
-    -webkit-user-select:none;
     user-select:none;
+    -webkit-user-select:none;
     touch-action:none;
 }
 
@@ -19,126 +20,204 @@ html,body{
     width:100%;
     height:100%;
     overflow:hidden;
-    background:#111;
+    background:#10151c;
     font-family:Arial,sans-serif;
     color:white;
 }
 
-#game{
+canvas{
     position:fixed;
     inset:0;
-    background:#172018;
-}
-
-canvas{
-    display:block;
     width:100%;
     height:100%;
-}
-
-#ui{
-    position:fixed;
-    inset:0;
-    pointer-events:none;
-}
-
-.panel{
-    background:rgba(10,15,20,.86);
-    border:1px solid rgba(255,255,255,.18);
-    border-radius:12px;
-    box-shadow:0 5px 25px rgba(0,0,0,.4);
-}
-
-#stats{
-    position:absolute;
-    top:10px;
-    left:10px;
-    width:245px;
-    padding:10px;
-}
-
-#stats b{
-    color:#ffd84d;
-}
-
-.bar{
-    height:12px;
-    background:#252525;
-    border-radius:8px;
-    overflow:hidden;
-    margin:4px 0;
-}
-
-.bar div{
-    height:100%;
-}
-
-#hpFill{background:#e83d4f;width:100%}
-#xpFill{background:#35a8ff;width:0%}
-
-#buttons{
-    position:absolute;
-    top:10px;
-    right:10px;
-    display:flex;
-    gap:7px;
-    pointer-events:auto;
+    display:block;
 }
 
 button{
     border:0;
-    color:white;
-    background:#303b4a;
     border-radius:9px;
+    background:#344255;
+    color:white;
     padding:9px 12px;
     font-weight:bold;
     cursor:pointer;
 }
 
 button:hover{
-    background:#46576c;
+    background:#4c6078;
+}
+
+button:disabled{
+    opacity:.4;
+}
+
+.ui{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+}
+
+.panel{
+    background:rgba(13,19,27,.9);
+    border:1px solid rgba(255,255,255,.16);
+    box-shadow:0 6px 25px rgba(0,0,0,.35);
+    border-radius:12px;
+}
+
+#stats{
+    position:absolute;
+    left:10px;
+    top:10px;
+    width:245px;
+    padding:10px;
+}
+
+.bar{
+    height:10px;
+    background:#222;
+    border-radius:10px;
+    overflow:hidden;
+    margin:4px 0 7px;
+}
+
+.bar > div{
+    height:100%;
+    transition:.15s;
+}
+
+#hpBar{
+    background:#e84949;
+}
+
+#xpBar{
+    background:#3d9cff;
+}
+
+#topButtons{
+    position:absolute;
+    right:10px;
+    top:10px;
+    display:flex;
+    gap:6px;
+    pointer-events:auto;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+    max-width:400px;
+}
+
+#weaponInfo{
+    position:absolute;
+    left:10px;
+    bottom:10px;
+    width:250px;
+    padding:10px;
+}
+
+#mountInfo{
+    position:absolute;
+    right:10px;
+    bottom:10px;
+    width:170px;
+    padding:10px;
 }
 
 #message{
     position:absolute;
-    top:100px;
     left:50%;
+    top:105px;
     transform:translateX(-50%);
     padding:10px 18px;
-    background:rgba(0,0,0,.65);
-    border-radius:20px;
+    border-radius:30px;
+    background:rgba(0,0,0,.72);
     opacity:0;
-    transition:.25s;
+    transition:.2s;
+    white-space:nowrap;
 }
 
 #message.show{
     opacity:1;
 }
 
-#mountPanel{
-    position:absolute;
-    right:10px;
-    bottom:10px;
-    width:160px;
-    padding:8px;
+.modal{
+    position:fixed;
+    inset:0;
+    z-index:20;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    background:rgba(0,0,0,.7);
     pointer-events:auto;
 }
 
-.mountBtn{
-    display:block;
+.modal.show{
+    display:flex;
+}
+
+.modalBox{
+    width:min(850px,94vw);
+    max-height:90vh;
+    overflow:auto;
+    background:#19222d;
+    border:1px solid #4a5c70;
+    border-radius:18px;
+    padding:20px;
+}
+
+.modalBox h2{
+    margin-top:0;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(145px,1fr));
+    gap:10px;
+}
+
+.card{
+    background:#263443;
+    border:1px solid #405267;
+    border-radius:12px;
+    padding:12px;
+}
+
+.card h3{
+    margin:0 0 8px;
+    font-size:16px;
+}
+
+.card button{
     width:100%;
-    margin:4px 0;
+    margin-top:7px;
 }
 
-#weaponPanel{
-    position:absolute;
-    left:10px;
-    bottom:10px;
-    width:245px;
-    padding:8px;
+.locked{
+    opacity:.45;
 }
 
-#touchControls{
+.tabs{
+    display:flex;
+    gap:6px;
+    overflow-x:auto;
+    margin-bottom:15px;
+}
+
+.tab{
+    white-space:nowrap;
+}
+
+.tab.active{
+    background:#5d79a0;
+}
+
+.section{
+    display:none;
+}
+
+.section.active{
+    display:block;
+}
+
+#touch{
     position:absolute;
     inset:0;
     pointer-events:none;
@@ -151,113 +230,83 @@ button:hover{
     width:125px;
     height:125px;
     border-radius:50%;
-    background:rgba(255,255,255,.08);
+    background:rgba(255,255,255,.07);
     border:2px solid rgba(255,255,255,.2);
     pointer-events:auto;
 }
 
 #stick{
     position:absolute;
-    width:55px;
-    height:55px;
+    width:54px;
+    height:54px;
     left:33px;
     top:33px;
     border-radius:50%;
     background:rgba(255,255,255,.28);
 }
 
-#attackBtn{
+#attack{
     position:absolute;
-    right:30px;
-    bottom:35px;
-    width:100px;
-    height:100px;
+    right:25px;
+    bottom:30px;
+    width:105px;
+    height:105px;
     border-radius:50%;
-    background:#d64040;
+    background:#c93838;
     border:4px solid rgba(255,255,255,.3);
-    font-size:20px;
+    font-size:18px;
     pointer-events:auto;
 }
 
-.modal{
-    position:fixed;
-    inset:0;
-    display:none;
-    align-items:center;
-    justify-content:center;
-    background:rgba(0,0,0,.7);
-    z-index:20;
-    pointer-events:auto;
-}
-
-.modal.show{
-    display:flex;
-}
-
-.modalBox{
-    width:min(720px,94vw);
-    max-height:90vh;
-    overflow:auto;
-    padding:20px;
-    background:#18202b;
-    border-radius:18px;
-    border:1px solid #536273;
-}
-
-.grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
-    gap:10px;
-}
-
-.card{
-    background:#263241;
-    padding:12px;
-    border-radius:12px;
-    border:1px solid #3c4c5e;
-}
-
-.card button{
-    width:100%;
-    margin-top:7px;
-}
-
-.small{
-    font-size:12px;
-    opacity:.75;
-}
-
-#genderChoice{
+.choice{
     display:flex;
     gap:15px;
     justify-content:center;
 }
 
-.gender{
+.choice button{
     width:180px;
-    padding:25px;
-    font-size:20px;
+    height:150px;
+    font-size:22px;
+}
+
+.small{
+    font-size:12px;
+    opacity:.7;
+}
+
+.good{
+    color:#68ed83;
+}
+
+.gold{
+    color:#ffd83d;
 }
 
 @media(max-width:700px){
+
     #stats{
-        width:205px;
+        width:210px;
         font-size:12px;
     }
 
-    #weaponPanel{
-        bottom:165px;
-        width:200px;
-        font-size:12px;
+    #topButtons{
+        max-width:180px;
     }
 
-    #mountPanel{
-        display:none;
-    }
-
-    #buttons button{
+    #topButtons button{
+        font-size:10px;
         padding:7px;
-        font-size:11px;
+    }
+
+    #weaponInfo{
+        width:205px;
+        bottom:165px;
+        font-size:12px;
+    }
+
+    #mountInfo{
+        display:none;
     }
 }
 </style>
@@ -265,428 +314,701 @@ button:hover{
 
 <body>
 
-<div id="game">
 <canvas id="canvas"></canvas>
-</div>
 
-<div id="ui">
+<div class="ui">
 
     <div id="stats" class="panel">
-        <div>👤 <b id="genderText">캐릭터</b></div>
-        <div>레벨 <b id="levelText">1</b> / 2000</div>
+        <div>👤 <b id="gender">캐릭터</b></div>
 
-        <div class="bar">
-            <div id="xpFill"></div>
+        <div>
+            Lv. <b id="level">1</b> / 2000
         </div>
 
-        <div>HP <span id="hpText">100 / 100</span></div>
-
-        <div class="bar">
-            <div id="hpFill"></div>
+        <div class="small">
+            XP <span id="xpText">0 / 5</span>
         </div>
 
-        <div>🪙 <span id="coinText">0</span></div>
-        <div>LP <span id="lpText">0</span></div>
-        <div>⭐ <span id="starText">0</span></div>
+        <div class="bar">
+            <div id="xpBar"></div>
+        </div>
 
-        <div>🔪 <span id="weaponText">나무 막대기</span></div>
-        <div>🚗 <span id="mountText">없음</span></div>
-        <div>📍 <span id="regionText">초원</span></div>
+        <div>
+            HP <span id="hpText">100 / 100</span>
+        </div>
+
+        <div class="bar">
+            <div id="hpBar"></div>
+        </div>
+
+        <div>🪙 <span id="coins">0</span></div>
+        <div>LP <span id="lp">0</span></div>
+        <div>⭐ <span id="stars">0</span></div>
+
+        <div>
+            📍 <span id="region">초원</span>
+        </div>
     </div>
 
-    <div id="buttons">
-        <button onclick="openShop()">상점</button>
-        <button onclick="openDaily()">일일상점</button>
-        <button onclick="openCharacter()">캐릭터</button>
-        <button onclick="saveGame()">저장</button>
+    <div id="topButtons">
+        <button onclick="openEquipment()">🎒 장비</button>
+        <button onclick="openShop()">🛒 상점</button>
+        <button onclick="openDailyShop()">⭐ 일일상점</button>
+        <button onclick="saveGame()">💾 저장</button>
+    </div>
+
+    <div id="weaponInfo" class="panel">
+        <b>⚔ 현재 무기</b>
+        <div id="weaponName"></div>
+        <div id="weaponStats"></div>
+        <button onclick="upgradeWeapon()">강화</button>
+    </div>
+
+    <div id="mountInfo" class="panel">
+        <b>🚗 탈것</b>
+        <div id="mountName">없음</div>
+        <div class="small">장비 탭에서 장착</div>
     </div>
 
     <div id="message"></div>
 
-    <div id="weaponPanel" class="panel">
-        <b>⚔ 무기</b>
-        <div id="weaponInfo"></div>
-        <button onclick="upgradeWeapon()">코인으로 강화</button>
-    </div>
+    <div id="touch">
 
-    <div id="mountPanel" class="panel">
-        <b>탈것</b>
-        <button class="mountBtn" onclick="useMount('bike')">🚲 자전거</button>
-        <button class="mountBtn" onclick="useMount('car')">🚗 자동차</button>
-        <button class="mountBtn" onclick="useMount('plane')">✈️ 비행기</button>
-        <button class="mountBtn" onclick="useMount('fighter')">🛩️ 전투기</button>
-    </div>
-
-    <div id="touchControls">
         <div id="joystick">
             <div id="stick"></div>
         </div>
 
-        <button id="attackBtn">⚔<br>공격</button>
+        <button id="attack">
+            ⚔<br>
+            공격
+        </button>
+
     </div>
 </div>
 
 
-<!-- 성별 선택 -->
+<!-- =========================
+     성별 선택
+========================= -->
+
 <div id="genderModal" class="modal">
+
     <div class="modalBox" style="text-align:center">
-        <h1>캐릭터 선택</h1>
-        <p>플레이할 캐릭터를 선택하세요.</p>
 
-        <div id="genderChoice">
-            <button class="gender" onclick="chooseGender('boy')">
-                👦<br>남자아이
+        <h2>캐릭터 선택</h2>
+
+        <p>
+            사용할 캐릭터를 선택하세요.
+        </p>
+
+        <div class="choice">
+
+            <button onclick="selectGender('boy')">
+                👦<br><br>
+                남자아이
             </button>
 
-            <button class="gender" onclick="chooseGender('girl')">
-                👧<br>여자아이
+            <button onclick="selectGender('girl')">
+                👧<br><br>
+                여자아이
             </button>
+
         </div>
+
     </div>
 </div>
 
 
-<!-- 상점 -->
+<!-- =========================
+     장비
+========================= -->
+
+<div id="equipmentModal" class="modal">
+
+    <div class="modalBox">
+
+        <h2>🎒 장비</h2>
+
+        <div class="tabs">
+
+            <button class="tab active"
+                    onclick="equipmentTab('character',this)">
+                👤 캐릭터
+            </button>
+
+            <button class="tab"
+                    onclick="equipmentTab('weapon',this)">
+                ⚔ 무기
+            </button>
+
+            <button class="tab"
+                    onclick="equipmentTab('mount',this)">
+                🚗 탈것
+            </button>
+
+        </div>
+
+
+        <!-- 캐릭터 장비 -->
+
+        <div id="characterSection"
+             class="section active">
+
+            <h3>캐릭터 꾸미기</h3>
+
+            <div class="grid">
+
+                <div class="card">
+                    <h3>머리</h3>
+
+                    <button onclick="equipCharacter('hair','none')">
+                        기본
+                    </button>
+
+                    <button onclick="equipCharacter('hair','cap')">
+                        🧢 모자
+                    </button>
+
+                    <button onclick="equipCharacter('hair','crown')">
+                        👑 왕관
+                    </button>
+                </div>
+
+
+                <div class="card">
+                    <h3>모자</h3>
+
+                    <button onclick="equipCharacter('hat','none')">
+                        없음
+                    </button>
+
+                    <button onclick="equipCharacter('hat','hat')">
+                        🎩 모자
+                    </button>
+
+                    <button onclick="equipCharacter('hat','halloween')">
+                        🎃 할로윈 모자
+                    </button>
+
+                    <button onclick="equipCharacter('hat','christmas')">
+                        🎅 산타 모자
+                    </button>
+                </div>
+
+
+                <div class="card">
+                    <h3>옷</h3>
+
+                    <button onclick="equipCharacter('clothes','blue')">
+                        🔵 파란 옷
+                    </button>
+
+                    <button onclick="equipCharacter('clothes','red')">
+                        🔴 빨간 옷
+                    </button>
+
+                    <button onclick="equipCharacter('clothes','green')">
+                        🟢 초록 옷
+                    </button>
+                </div>
+
+
+                <div class="card">
+                    <h3>액세서리</h3>
+
+                    <button onclick="equipCharacter('accessory','none')">
+                        없음
+                    </button>
+
+                    <button onclick="equipCharacter('accessory','star')">
+                        ⭐ 별
+                    </button>
+
+                    <button onclick="equipCharacter('accessory','wings')">
+                        🪽 날개
+                    </button>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- 무기 장비 -->
+
+        <div id="weaponSection"
+             class="section">
+
+            <h3>⚔ 무기 장비</h3>
+
+            <div id="equipmentWeapons"
+                 class="grid">
+            </div>
+
+            <hr>
+
+            <h3>🎨 무기 스킨</h3>
+
+            <div id="weaponSkins"
+                 class="grid">
+            </div>
+
+        </div>
+
+
+        <!-- 탈것 장비 -->
+
+        <div id="mountSection"
+             class="section">
+
+            <h3>🚗 탈것 장비</h3>
+
+            <div id="equipmentMounts"
+                 class="grid">
+            </div>
+
+            <hr>
+
+            <h3>🎨 탈것 스킨</h3>
+
+            <div id="mountSkins"
+                 class="grid">
+            </div>
+
+        </div>
+
+
+        <br>
+
+        <button onclick="closeModal('equipmentModal')">
+            닫기
+        </button>
+
+    </div>
+</div>
+
+
+<!-- =========================
+     기본 상점
+========================= -->
+
 <div id="shopModal" class="modal">
+
     <div class="modalBox">
+
         <h2>🛒 기본 상점</h2>
-        <p>코인으로 다음 무기와 무기 강화를 구매할 수 있습니다.</p>
 
-        <div id="shopContent" class="grid"></div>
+        <div class="tabs">
 
-        <br>
-        <button onclick="closeModal('shopModal')">닫기</button>
-    </div>
-</div>
+            <button class="tab active"
+                    onclick="shopTab('weapons',this)">
+                ⚔ 무기
+            </button>
 
+            <button class="tab"
+                    onclick="shopTab('mounts',this)">
+                🚗 탈것
+            </button>
 
-<!-- 일일상점 -->
-<div id="dailyModal" class="modal">
-    <div class="modalBox">
-        <h2>⭐ 일일 상점</h2>
-        <p>매일 5개의 상품이 무작위로 등장합니다.</p>
+            <button class="tab"
+                    onclick="shopTab('items',this)">
+                🎨 꾸미기
+            </button>
 
-        <div id="dailyContent" class="grid"></div>
+        </div>
 
-        <br>
-        <button onclick="closeModal('dailyModal')">닫기</button>
-    </div>
-</div>
+        <div id="shopWeapons"
+             class="section active">
+        </div>
 
+        <div id="shopMounts"
+             class="section">
+        </div>
 
-<!-- 캐릭터 -->
-<div id="characterModal" class="modal">
-    <div class="modalBox">
-        <h2>🎨 캐릭터 꾸미기</h2>
-
-        <div class="grid">
-            <div class="card">
-                <b>성별</b>
-                <button onclick="chooseGender('boy')">👦 남자아이</button>
-                <button onclick="chooseGender('girl')">👧 여자아이</button>
-            </div>
-
-            <div class="card">
-                <b>색상</b>
-                <button onclick="changeColor('#55aaff')">파랑</button>
-                <button onclick="changeColor('#ff6699')">분홍</button>
-                <button onclick="changeColor('#55dd88')">초록</button>
-                <button onclick="changeColor('#ffbb44')">주황</button>
-            </div>
-
-            <div class="card">
-                <b>레벨업</b>
-                <p>현재 LP: <span id="charLP">0</span></p>
-                <button onclick="levelUp()">LP 1개 사용</button>
-            </div>
+        <div id="shopItems"
+             class="section">
         </div>
 
         <br>
-        <button onclick="closeModal('characterModal')">닫기</button>
+
+        <button onclick="closeModal('shopModal')">
+            닫기
+        </button>
+
+    </div>
+</div>
+
+
+<!-- =========================
+     일일 상점
+========================= -->
+
+<div id="dailyModal" class="modal">
+
+    <div class="modalBox">
+
+        <h2>⭐ 일일 상점</h2>
+
+        <p class="small">
+            하루에 5개의 상품이 등장합니다.
+            한정 상품과 기본 상품이 확률적으로 등장합니다.
+        </p>
+
+        <div id="dailyItems"
+             class="grid">
+        </div>
+
+        <br>
+
+        <button onclick="closeModal('dailyModal')">
+            닫기
+        </button>
+
     </div>
 </div>
 
 
 <script>
+
 /* =========================================================
-   기본 설정
+   CANVAS
 ========================================================= */
 
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
+const canvas=document.getElementById("canvas");
+const ctx=canvas.getContext("2d");
 
-let W = innerWidth;
-let H = innerHeight;
+let W=innerWidth;
+let H=innerHeight;
 
 function resize(){
-    W = innerWidth;
-    H = innerHeight;
 
-    canvas.width = W * devicePixelRatio;
-    canvas.height = H * devicePixelRatio;
+    W=innerWidth;
+    H=innerHeight;
 
-    canvas.style.width = W+"px";
-    canvas.style.height = H+"px";
+    canvas.width=W*devicePixelRatio;
+    canvas.height=H*devicePixelRatio;
 
-    ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+    canvas.style.width=W+"px";
+    canvas.style.height=H+"px";
+
+    ctx.setTransform(
+        devicePixelRatio,
+        0,
+        0,
+        devicePixelRatio,
+        0,
+        0
+    );
 }
 
 addEventListener("resize",resize);
+
 resize();
 
 
 /* =========================================================
-   게임 데이터
+   무기
 ========================================================= */
 
-const weapons = [
+const WEAPONS=[
+
     {
+        id:"stick",
         name:"나무 막대기",
         damage:10,
         range:110,
-        speed:500,
-        type:"melee"
+        cooldown:.55,
+        price:0
     },
+
     {
+        id:"stone",
         name:"돌",
-        damage:16,
-        range:120,
-        speed:480,
-        type:"melee"
+        damage:17,
+        range:115,
+        cooldown:.52,
+        price:500
     },
+
     {
+        id:"axe",
         name:"도끼",
-        damage:25,
+        damage:27,
         range:125,
-        speed:500,
-        type:"melee"
+        cooldown:.55,
+        price:1000
     },
+
     {
+        id:"stoneKnife",
         name:"돌 칼",
-        damage:35,
+        damage:40,
         range:130,
-        speed:450,
-        type:"melee"
+        cooldown:.48,
+        price:1500
     },
+
     {
+        id:"pipe",
         name:"쇠파이프",
-        damage:48,
-        range:135,
-        speed:450,
-        type:"melee",
-        skin:"🎄 캔디 지팡이"
-    },
-    {
-        name:"쇠칼",
-        damage:65,
+        damage:55,
         range:140,
-        speed:420,
-        type:"melee"
+        cooldown:.5,
+        price:2500
     },
+
     {
+        id:"ironKnife",
+        name:"쇠칼",
+        damage:70,
+        range:145,
+        cooldown:.42,
+        price:3500
+    },
+
+    {
+        id:"medievalSword",
         name:"중세시대 검",
-        damage:85,
-        range:150,
-        speed:420,
-        type:"melee"
-    },
-    {
-        name:"금칼",
-        damage:115,
+        damage:95,
         range:155,
-        speed:400,
-        type:"melee"
+        cooldown:.4,
+        price:5000
     },
+
     {
+        id:"goldSword",
+        name:"금칼",
+        damage:125,
+        range:160,
+        cooldown:.4,
+        price:7500
+    },
+
+    {
+        id:"diamondSword",
         name:"다이아몬드 검",
-        damage:150,
-        range:165,
-        speed:390,
-        type:"melee"
+        damage:170,
+        range:170,
+        cooldown:.36,
+        price:10000
     },
+
     {
+        id:"amethystSword",
         name:"자수정 검",
-        damage:200,
-        range:175,
-        speed:380,
-        type:"melee"
+        damage:230,
+        range:180,
+        cooldown:.34,
+        price:15000
     },
+
     {
+        id:"rocket",
         name:"로켓 발사기",
-        damage:260,
-        range:500,
-        speed:850,
-        type:"projectile",
-        skin:"🎄 크리스마스 양말"
+        damage:300,
+        range:450,
+        cooldown:.8,
+        price:22000,
+        projectile:true
     },
+
     {
+        id:"crystalSpear",
         name:"크리스탈 창",
-        damage:340,
-        range:210,
-        speed:350,
-        type:"melee"
+        damage:390,
+        range:205,
+        cooldown:.32,
+        price:30000
     },
+
     {
+        id:"trident",
         name:"포세이돈의 삼지창",
-        damage:500,
-        range:230,
-        speed:300,
-        type:"projectile"
+        damage:550,
+        range:235,
+        cooldown:.45,
+        price:45000,
+        projectile:true
     },
+
     {
+        id:"zeus",
         name:"제우스의 번개",
-        damage:750,
+        damage:800,
         range:500,
-        speed:900,
-        type:"lightning"
+        cooldown:.9,
+        price:70000,
+        projectile:true
     },
+
     {
+        id:"pen",
         name:"만년필",
-        damage:1000,
-        range:260,
-        speed:280,
-        type:"melee"
+        damage:1100,
+        range:270,
+        cooldown:.3,
+        price:100000
     }
+
 ];
 
 
-const mounts = {
-    bike:{
+/* =========================================================
+   탈것
+========================================================= */
+
+const MOUNTS=[
+
+    {
+        id:"bike",
         name:"자전거",
+        speed:280,
         type:"land",
-        speed:280
+        price:1000
     },
 
-    car:{
+    {
+        id:"car",
         name:"자동차",
+        speed:380,
         type:"land",
-        speed:380
+        price:5000
     },
 
-    plane:{
+    {
+        id:"plane",
         name:"비행기",
+        speed:520,
         type:"air",
-        speed:520
+        price:25000
     },
 
-    fighter:{
+    {
+        id:"fighter",
         name:"전투기",
+        speed:720,
         type:"air",
-        speed:720
+        price:75000
     }
-};
+
+];
 
 
-const monsters = {
+/* =========================================================
+   몬스터
+========================================================= */
+
+const MONSTERS={
+
     slime:{
         name:"슬라임",
-        hp:45,
+        hp:50,
         damage:7,
-        speed:75,
+        speed:70,
         detect:240,
-        color:"#50d86a",
-        size:16,
+        color:"#4fd866",
+        size:17,
         region:"초원"
     },
 
     goblin:{
         name:"고블린",
-        hp:80,
+        hp:90,
         damage:12,
         speed:85,
-        detect:250,
-        color:"#62a84f",
-        size:18,
+        detect:260,
+        color:"#6ca64e",
+        size:19,
         region:"초원"
     },
 
     oni:{
         name:"오니",
-        hp:180,
-        damage:22,
+        hp:190,
+        damage:25,
         speed:80,
-        detect:260,
-        color:"#d94d42",
-        size:21,
+        detect:270,
+        color:"#d94646",
+        size:22,
         region:"정글"
     },
 
     royalSlime:{
         name:"슬라임 왕족",
-        hp:550,
-        damage:35,
-        speed:60,
+        hp:650,
+        damage:40,
+        speed:55,
         detect:350,
-        color:"#b96cff",
-        size:28,
+        color:"#b76cff",
+        size:29,
         region:"호수",
         boss:true
     },
 
     demonSoldier:{
         name:"데몬 병사",
-        hp:300,
+        hp:320,
         damage:35,
-        speed:95,
-        detect:290,
-        color:"#7c3030",
-        size:20,
+        speed:90,
+        detect:300,
+        color:"#8c3030",
+        size:21,
         region:"지옥"
     },
 
     demonSergeant:{
         name:"데몬 병장",
-        hp:700,
+        hp:750,
         damage:55,
-        speed:100,
-        detect:330,
-        color:"#a82828",
-        size:25,
+        speed:95,
+        detect:350,
+        color:"#b62b2b",
+        size:26,
         region:"지옥"
     },
 
     ultimateDemon:{
         name:"최강 악마",
-        hp:2500,
-        damage:100,
-        speed:120,
+        hp:3000,
+        damage:110,
+        speed:115,
         detect:500,
-        color:"#3d0710",
-        size:38,
+        color:"#350810",
+        size:40,
         region:"지옥",
         boss:true
     },
 
     phoenix:{
         name:"피닉스",
-        hp:1300,
-        damage:75,
-        speed:130,
-        detect:400,
-        color:"#ff7b19",
-        size:32,
+        hp:1500,
+        damage:85,
+        speed:125,
+        detect:420,
+        color:"#ff791c",
+        size:33,
         region:"화산",
         boss:true
     },
 
     witch:{
         name:"마녀",
-        hp:900,
-        damage:60,
+        hp:1000,
+        damage:70,
         speed:75,
-        detect:400,
-        color:"#8e42bd",
-        size:27,
+        detect:420,
+        color:"#8e43bd",
+        size:28,
         region:"정글",
         boss:true
     },
 
     frostSlime:{
         name:"얼음 슬라임",
-        hp:250,
-        damage:30,
-        speed:70,
-        detect:260,
+        hp:270,
+        damage:32,
+        speed:65,
+        detect:270,
         color:"#9beaff",
         size:19,
         region:"북극"
@@ -694,37 +1016,27 @@ const monsters = {
 
     frostDemon:{
         name:"프로스트 데몬",
-        hp:1000,
-        damage:80,
-        speed:90,
-        detect:420,
-        color:"#8ae7ff",
-        size:31,
+        hp:1200,
+        damage:85,
+        speed:85,
+        detect:450,
+        color:"#72dfff",
+        size:32,
         region:"북극",
         boss:true
     },
 
     volcanoDemon:{
         name:"화산 악마",
-        hp:650,
-        damage:65,
+        hp:700,
+        damage:70,
         speed:90,
-        detect:330,
-        color:"#ff4025",
+        detect:350,
+        color:"#ff4128",
         size:25,
         region:"화산"
-    },
-
-    jungleGoblin:{
-        name:"정글 고블린",
-        hp:170,
-        damage:25,
-        speed:110,
-        detect:300,
-        color:"#2f8f50",
-        size:19,
-        region:"정글"
     }
+
 };
 
 
@@ -732,71 +1044,80 @@ const monsters = {
    지역
 ========================================================= */
 
-const regions = [
+const REGIONS=[
+
     {
+        id:"meadow",
         name:"초원",
-        x:0,
-        y:0,
-        w:1600,
-        h:1100,
-        color:"#6dbd58"
+        cx:450,
+        cy:400,
+        rx:850,
+        ry:650,
+        color:"#63b856"
     },
 
     {
+        id:"ocean",
         name:"바다",
-        x:1600,
-        y:-100,
-        w:1400,
-        h:1300,
-        color:"#217cc5",
+        cx:2200,
+        cy:350,
+        rx:800,
+        ry:700,
+        color:"#1d72bd",
         water:true
     },
 
     {
+        id:"lake",
         name:"호수",
-        x:800,
-        y:700,
-        w:650,
-        h:450,
-        color:"#309bd0",
+        cx:850,
+        cy:900,
+        rx:350,
+        ry:250,
+        color:"#2e9fd0",
         water:true
     },
 
     {
+        id:"jungle",
         name:"정글",
-        x:-900,
-        y:700,
-        w:1000,
-        h:800,
-        color:"#246b3d"
+        cx:-650,
+        cy:900,
+        rx:500,
+        ry:650,
+        color:"#23673b"
     },
 
     {
-        name:"火山",
-        x:0,
-        y:1450,
-        w:1000,
-        h:850,
-        color:"#772c21"
+        id:"volcano",
+        name:"화산",
+        cx:350,
+        cy:1750,
+        rx:500,
+        ry:430,
+        color:"#793124"
     },
 
     {
+        id:"hell",
         name:"지옥",
-        x:1000,
-        y:1450,
-        w:1000,
-        h:850,
-        color:"#3c1117"
+        cx:1250,
+        cy:1750,
+        rx:600,
+        ry:450,
+        color:"#3b1117"
     },
 
     {
+        id:"arctic",
         name:"북극",
-        x:-900,
-        y:-800,
-        w:1100,
-        h:800,
-        color:"#bdefff"
+        cx:-650,
+        cy:-600,
+        rx:550,
+        ry:500,
+        color:"#b9edff"
     }
+
 ];
 
 
@@ -804,9 +1125,10 @@ const regions = [
    플레이어
 ========================================================= */
 
-const player = {
-    x:500,
-    y:500,
+const player={
+
+    x:400,
+    y:350,
 
     gender:null,
     color:"#55aaff",
@@ -817,266 +1139,205 @@ const player = {
     level:1,
     xp:0,
 
-    coins:500,
+    coins:3000,
     lp:5,
-    stars:10,
+    stars:20,
 
-    weapon:0,
+    inventory:{
+        weapons:["stick"],
+        weaponSkins:[],
+
+        mounts:[],
+        mountSkins:[],
+
+        characterItems:[]
+    },
+
+    equipment:{
+        weapon:"stick",
+        weaponSkin:null,
+
+        mount:null,
+        mountSkin:null,
+
+        hair:"none",
+        hat:"none",
+        clothes:"blue",
+        accessory:"none"
+    },
+
     weaponUpgrade:0,
 
-    mount:null,
-
-    speed:180,
-
-    attackCooldown:0
+    attackTimer:0,
+    attackAnimation:0,
+    attackAngle:0
 };
 
 
 /* =========================================================
-   게임 객체
+   게임 상태
 ========================================================= */
 
-let enemies = [];
-let projectiles = [];
-let particles = [];
+let enemies=[];
+let projectiles=[];
+let particles=[];
 
-let camera = {
+let camera={
     x:0,
     y:0
 };
 
-let keys = {};
-
-let aim = {
-    x:0,
-    y:0,
+let aim={
+    x:player.x+100,
+    y:player.y,
     active:false
 };
 
+let keys={};
 
-/* =========================================================
-   저장 / 불러오기
-========================================================= */
-
-function saveGame(){
-
-    localStorage.setItem(
-        "fantasyDungeonSave",
-        JSON.stringify({
-            player
-        })
-    );
-
-    showMessage("게임이 저장되었습니다.");
-}
-
-
-function loadGame(){
-
-    const data = localStorage.getItem("fantasyDungeonSave");
-
-    if(!data) return;
-
-    try{
-        const obj = JSON.parse(data);
-
-        Object.assign(player,obj.player);
-
-        if(player.gender){
-            document.getElementById("genderModal")
-                .classList.remove("show");
-        }
-
-    }catch(e){
-        console.log(e);
-    }
-}
-
-
-/* =========================================================
-   성별
-========================================================= */
-
-function chooseGender(g){
-
-    player.gender = g;
-
-    document.getElementById("genderText").textContent =
-        g==="boy" ? "남자아이" : "여자아이";
-
-    closeModal("genderModal");
-
-    saveGame();
-}
-
-
-/* =========================================================
-   키보드
-========================================================= */
-
-addEventListener("keydown",e=>{
-    keys[e.key.toLowerCase()] = true;
-
-    if(e.key.toLowerCase()==="e"){
-        attack();
-    }
-});
-
-addEventListener("keyup",e=>{
-    keys[e.key.toLowerCase()] = false;
-});
-
-
-/* =========================================================
-   마우스 조준
-========================================================= */
-
-canvas.addEventListener("mousemove",e=>{
-
-    const rect = canvas.getBoundingClientRect();
-
-    const sx = e.clientX;
-    const sy = e.clientY;
-
-    const wx = sx + camera.x;
-    const wy = sy + camera.y;
-
-    aim.x = wx;
-    aim.y = wy;
-    aim.active = true;
-});
-
-
-canvas.addEventListener("mousedown",e=>{
-
-    const rect = canvas.getBoundingClientRect();
-
-    aim.x = e.clientX + camera.x;
-    aim.y = e.clientY + camera.y;
-
-    aim.active = true;
-
-    attack();
-});
-
-
-canvas.addEventListener("mouseleave",()=>{
-    aim.active=false;
-});
-
-
-/* =========================================================
-   모바일 조이스틱
-========================================================= */
-
-const joystick = document.getElementById("joystick");
-const stick = document.getElementById("stick");
-
-let joystickActive=false;
 let joyX=0;
 let joyY=0;
 
-joystick.addEventListener("pointerdown",e=>{
-    joystickActive=true;
-    joystick.setPointerCapture(e.pointerId);
-    moveJoystick(e);
-});
-
-joystick.addEventListener("pointermove",e=>{
-    if(joystickActive) moveJoystick(e);
-});
-
-joystick.addEventListener("pointerup",()=>{
-    joystickActive=false;
-    joyX=0;
-    joyY=0;
-
-    stick.style.left="33px";
-    stick.style.top="33px";
-});
-
-function moveJoystick(e){
-
-    const r=joystick.getBoundingClientRect();
-
-    let x=e.clientX-(r.left+r.width/2);
-    let y=e.clientY-(r.top+r.height/2);
-
-    const max=43;
-
-    const len=Math.hypot(x,y);
-
-    if(len>max){
-        x=x/len*max;
-        y=y/len*max;
-    }
-
-    joyX=x/max;
-    joyY=y/max;
-
-    stick.style.left=(33+x)+"px";
-    stick.style.top=(33+y)+"px";
-
-    aim.x=player.x+joyX*300;
-    aim.y=player.y+joyY*300;
-    aim.active=len>5;
-}
-
-
-document.getElementById("attackBtn")
-.addEventListener("pointerdown",()=>{
-    attack();
-});
+let messageTimer=0;
 
 
 /* =========================================================
-   지역 계산
+   이벤트
 ========================================================= */
+
+function getEvent(){
+
+    const now=new Date();
+
+    const year=now.getFullYear();
+
+    function weekContains(date){
+
+        const d=new Date(date);
+
+        const day=(d.getDay()+6)%7;
+
+        const start=new Date(d);
+
+        start.setDate(d.getDate()-day);
+
+        const end=new Date(start);
+
+        end.setDate(start.getDate()+6);
+
+        return now>=start && now<=end;
+    }
+
+    if(weekContains(
+        new Date(year,9,31)
+    )){
+        return "halloween";
+    }
+
+    if(weekContains(
+        new Date(year,11,25)
+    )){
+        return "christmas";
+    }
+
+    return null;
+}
+
+
+/* =========================================================
+   XP
+========================================================= */
+
+function neededXP(){
+
+    if(player.level>=2000)
+        return Infinity;
+
+    return player.level*5;
+}
+
+function addXP(amount){
+
+    while(
+        amount>0 &&
+        player.level<2000
+    ){
+
+        const needed=neededXP();
+        const remaining=needed-player.xp;
+
+        const add=Math.min(
+            amount,
+            remaining
+        );
+
+        player.xp+=add;
+        amount-=add;
+
+        if(player.xp>=needed){
+
+            player.xp=0;
+
+            player.level++;
+
+            player.maxHp+=3;
+            player.hp=player.maxHp;
+
+            player.lp+=2;
+
+            showMessage(
+                "🎉 레벨 "+player.level+
+                " 달성! LP +2"
+            );
+        }
+    }
+}
+
+
+/* =========================================================
+   지역
+========================================================= */
+
+function pointInEllipse(x,y,r){
+
+    const dx=(x-r.cx)/r.rx;
+    const dy=(y-r.cy)/r.ry;
+
+    return dx*dx+dy*dy<=1;
+}
 
 function getRegion(x,y){
 
     /*
-       불규칙한 지형 느낌을 만들기 위해
-       가장 가까운 지역을 검사한다.
+      특수 지역 우선 검사
     */
 
-    for(const r of regions){
+    for(const r of REGIONS){
 
-        if(
-            x>=r.x &&
-            x<=r.x+r.w &&
-            y>=r.y &&
-            y<=r.y+r.h
-        ){
+        if(pointInEllipse(x,y,r))
             return r;
-        }
     }
 
-    return regions[0];
+    return REGIONS[0];
 }
 
 
-/* =========================================================
-   물 / 이동 가능 여부
-========================================================= */
-
-function canMoveTo(x,y){
+function canMove(x,y){
 
     const r=getRegion(x,y);
 
     if(r.water){
 
-        /*
-          비행기 / 전투기만 바다와 호수를 통과.
-          탈것이 없거나 육상 탈것이면 이동 불가.
-        */
-
-        if(
-            !player.mount ||
-            mounts[player.mount].type!=="air"
-        ){
+        if(!player.equipment.mount)
             return false;
-        }
+
+        const mount=
+            MOUNTS.find(
+                m=>m.id===player.equipment.mount
+            );
+
+        if(!mount || mount.type!=="air")
+            return false;
     }
 
     return true;
@@ -1084,16 +1345,293 @@ function canMoveTo(x,y){
 
 
 /* =========================================================
-   몬스터 생성
+   입력
+========================================================= */
+
+addEventListener("keydown",e=>{
+
+    keys[e.key.toLowerCase()]=true;
+
+    if(e.key.toLowerCase()==="e")
+        attack();
+});
+
+addEventListener("keyup",e=>{
+    keys[e.key.toLowerCase()]=false;
+});
+
+
+canvas.addEventListener("mousemove",e=>{
+
+    aim.x=e.clientX+camera.x;
+    aim.y=e.clientY+camera.y;
+
+    aim.active=true;
+});
+
+canvas.addEventListener("mousedown",e=>{
+
+    aim.x=e.clientX+camera.x;
+    aim.y=e.clientY+camera.y;
+
+    aim.active=true;
+
+    attack();
+});
+
+
+/* =========================================================
+   조이스틱
+========================================================= */
+
+const joystick=
+    document.getElementById("joystick");
+
+const stick=
+    document.getElementById("stick");
+
+let joyActive=false;
+
+joystick.addEventListener(
+    "pointerdown",
+    e=>{
+        joyActive=true;
+        joystick.setPointerCapture(e.pointerId);
+        moveJoy(e);
+    }
+);
+
+joystick.addEventListener(
+    "pointermove",
+    e=>{
+        if(joyActive)
+            moveJoy(e);
+    }
+);
+
+joystick.addEventListener(
+    "pointerup",
+    ()=>{
+        joyActive=false;
+        joyX=0;
+        joyY=0;
+
+        stick.style.left="33px";
+        stick.style.top="33px";
+    }
+);
+
+function moveJoy(e){
+
+    const r=joystick.getBoundingClientRect();
+
+    let x=e.clientX-
+        (r.left+r.width/2);
+
+    let y=e.clientY-
+        (r.top+r.height/2);
+
+    const max=43;
+
+    const len=Math.hypot(x,y);
+
+    if(len>max){
+
+        x=x/len*max;
+        y=y/len*max;
+    }
+
+    joyX=x/max;
+    joyY=y/max;
+
+    /*
+      모바일 조준 방향
+    */
+
+    aim.x=player.x+joyX*300;
+    aim.y=player.y+joyY*300;
+    aim.active=len>5;
+
+    stick.style.left=(33+x)+"px";
+    stick.style.top=(33+y)+"px";
+}
+
+
+document.getElementById("attack")
+.addEventListener(
+    "pointerdown",
+    e=>{
+        e.preventDefault();
+        attack();
+    }
+);
+
+
+/* =========================================================
+   무기
+========================================================= */
+
+function currentWeapon(){
+
+    return WEAPONS.find(
+        w=>w.id===player.equipment.weapon
+    ) || WEAPONS[0];
+}
+
+
+function weaponDamage(){
+
+    const w=currentWeapon();
+
+    return Math.floor(
+        w.damage*
+        (1+player.weaponUpgrade*.18)
+    );
+}
+
+
+/* =========================================================
+   120도 공격
+========================================================= */
+
+function attack(){
+
+    if(player.attackTimer>0)
+        return;
+
+    const weapon=currentWeapon();
+
+    player.attackTimer=weapon.cooldown;
+
+    /*
+      공격 애니메이션 시작
+    */
+
+    player.attackAnimation=.28;
+
+    const dx=aim.x-player.x;
+    const dy=aim.y-player.y;
+
+    player.attackAngle=
+        Math.atan2(dy,dx);
+
+    /*
+      원거리 무기는 투사체
+    */
+
+    if(weapon.projectile){
+
+        fireProjectile();
+
+        return;
+    }
+
+    /*
+      근접무기:
+      중심각 ±60°
+      = 총 120°
+    */
+
+    for(const enemy of [...enemies]){
+
+        const ex=enemy.x-player.x;
+        const ey=enemy.y-player.y;
+
+        const distance=Math.hypot(ex,ey);
+
+        if(distance>weapon.range)
+            continue;
+
+        const enemyAngle=
+            Math.atan2(ey,ex);
+
+        let diff=
+            normalizeAngle(
+                enemyAngle-
+                player.attackAngle
+            );
+
+        /*
+          ±60도
+        */
+
+        if(Math.abs(diff)<=Math.PI/3){
+
+            enemy.hp-=weaponDamage();
+
+            enemy.flash=.12;
+
+            burst(
+                enemy.x,
+                enemy.y,
+                "#ffffff"
+            );
+
+            if(enemy.hp<=0)
+                killEnemy(enemy);
+        }
+    }
+}
+
+
+function normalizeAngle(a){
+
+    while(a>Math.PI)
+        a-=Math.PI*2;
+
+    while(a<-Math.PI)
+        a+=Math.PI*2;
+
+    return a;
+}
+
+
+/* =========================================================
+   투사체
+========================================================= */
+
+function fireProjectile(){
+
+    const weapon=currentWeapon();
+
+    let dx=aim.x-player.x;
+    let dy=aim.y-player.y;
+
+    const len=Math.hypot(dx,dy)||1;
+
+    dx/=len;
+    dy/=len;
+
+    projectiles.push({
+
+        x:player.x,
+        y:player.y,
+
+        vx:dx*650,
+        vy:dy*650,
+
+        life:weapon.range/650,
+
+        damage:weaponDamage(),
+
+        type:weapon.id
+    });
+}
+
+
+/* =========================================================
+   몬스터
 ========================================================= */
 
 function spawnEnemy(type,x,y){
 
-    const base=monsters[type];
+    const base=MONSTERS[type];
 
-    if(!base) return;
+    if(!base)
+        return;
 
     enemies.push({
+
         type,
 
         x,
@@ -1106,43 +1644,56 @@ function spawnEnemy(type,x,y){
         maxHp:base.hp,
 
         attackTimer:0,
-
-        hitFlash:0
+        flash:0
     });
 }
 
 
-function randomSpawn(){
+function spawnRandomEnemy(){
 
     const r=getRegion(
-        player.x+(Math.random()-.5)*1200,
-        player.y+(Math.random()-.5)*1200
-    );
+        player.x+
+        (Math.random()-.5)*1300,
 
-    if(!r) return;
+        player.y+
+        (Math.random()-.5)*1300
+    );
 
     let list=[];
 
-    switch(r.name){
+    switch(r.id){
 
-        case "초원":
-            list=["slime","slime","goblin"];
+        case "meadow":
+            list=[
+                "slime",
+                "slime",
+                "goblin"
+            ];
             break;
 
-        case "호수":
-            list=["slime","royalSlime"];
+        case "lake":
+            list=[
+                "slime",
+                "royalSlime"
+            ];
             break;
 
-        case "정글":
-            list=["oni","jungleGoblin","witch"];
+        case "jungle":
+            list=[
+                "oni",
+                "goblin",
+                "witch"
+            ];
             break;
 
-        case "화산":
-        case "火山":
-            list=["volcanoDemon","phoenix"];
+        case "volcano":
+            list=[
+                "volcanoDemon",
+                "phoenix"
+            ];
             break;
 
-        case "지옥":
+        case "hell":
             list=[
                 "demonSoldier",
                 "demonSergeant",
@@ -1150,617 +1701,46 @@ function randomSpawn(){
             ];
             break;
 
-        case "북극":
-            list=["frostSlime","frostDemon"];
+        case "arctic":
+            list=[
+                "frostSlime",
+                "frostDemon"
+            ];
             break;
 
-        case "바다":
-            /*
-              바다 전용 몬스터
-            */
-            list=["phoenix"];
+        case "ocean":
+            list=[
+                "phoenix"
+            ];
             break;
-
-        default:
-            list=["slime"];
     }
 
-    const type=list[
-        Math.floor(Math.random()*list.length)
-    ];
+    if(!list.length)
+        return;
 
-    const x=r.x+60+Math.random()*(r.w-120);
-    const y=r.y+60+Math.random()*(r.h-120);
+    const type=
+        list[
+            Math.floor(
+                Math.random()*list.length
+            )
+        ];
+
+    let x;
+    let y;
+
+    for(let i=0;i<10;i++){
+
+        x=r.cx+
+            (Math.random()*2-1)*r.rx*.75;
+
+        y=r.cy+
+            (Math.random()*2-1)*r.ry*.75;
+
+        if(canMove(x,y))
+            break;
+    }
 
     spawnEnemy(type,x,y);
-}
-
-
-/* =========================================================
-   무기 공격
-========================================================= */
-
-function getWeapon(){
-
-    return weapons[player.weapon];
-}
-
-
-function getDamage(){
-
-    const w=getWeapon();
-
-    return w.damage*(1+player.weaponUpgrade*.18);
-}
-
-
-function attack(){
-
-    if(player.attackCooldown>0) return;
-
-    const w=getWeapon();
-
-    player.attackCooldown=1/(w.speed/500);
-
-    let dx=aim.x-player.x;
-    let dy=aim.y-player.y;
-
-    let len=Math.hypot(dx,dy);
-
-    if(len<1){
-        dx=1;
-        dy=0;
-        len=1;
-    }
-
-    dx/=len;
-    dy/=len;
-
-    if(w.type==="melee"){
-
-        meleeAttack(dx,dy);
-
-    }else{
-
-        projectileAttack(dx,dy);
-    }
-}
-
-
-function meleeAttack(dx,dy){
-
-    const w=getWeapon();
-    const range=w.range;
-
-    for(const e of enemies){
-
-        const ex=e.x-player.x;
-        const ey=e.y-player.y;
-
-        const dist=Math.hypot(ex,ey);
-
-        if(dist>range) continue;
-
-        const dot=(ex*dx+ey*dy)/(dist||1);
-
-        if(dot>.35){
-
-            e.hp-=getDamage();
-
-            e.hitFlash=.12;
-
-            burst(e.x,e.y,"#fff");
-
-            if(e.hp<=0){
-                killEnemy(e);
-            }
-        }
-    }
-}
-
-
-function projectileAttack(dx,dy){
-
-    const w=getWeapon();
-
-    projectiles.push({
-        x:player.x,
-        y:player.y,
-
-        vx:dx*w.speed,
-        vy:dy*w.speed,
-
-        life:w.range/w.speed,
-
-        damage:getDamage(),
-
-        type:w.type
-    });
-}
-
-
-/* =========================================================
-   몬스터 처치
-========================================================= */
-
-function killEnemy(e){
-
-    const base=monsters[e.type];
-
-    player.coins+=Math.floor(
-        base.hp*.35+Math.random()*20
-    );
-
-    player.lp+=base.boss?5:1;
-
-    if(base.boss){
-        player.stars+=2;
-
-        showMessage(
-            "👑 보스 처치! ⭐ 스타 +2"
-        );
-    }
-
-    addXP(
-        Math.max(
-            5,
-            Math.floor(base.hp/8)
-        )
-    );
-
-    burst(e.x,e.y,base.color);
-
-    enemies=enemies.filter(x=>x!==e);
-}
-
-
-/* =========================================================
-   XP / 레벨
-========================================================= */
-
-function xpNeeded(){
-
-    if(player.level>=2000)
-        return Infinity;
-
-    return player.level*5;
-}
-
-
-function addXP(amount){
-
-    if(player.level>=2000) return;
-
-    player.xp+=amount;
-
-    while(
-        player.level<2000 &&
-        player.xp>=xpNeeded()
-    ){
-
-        player.xp-=xpNeeded();
-
-        player.level++;
-
-        player.maxHp+=3;
-        player.hp=player.maxHp;
-
-        player.lp+=2;
-
-        showMessage(
-            `🎉 레벨 ${player.level}! LP +2`
-        );
-    }
-}
-
-
-function levelUp(){
-
-    if(player.level>=2000) return;
-
-    if(player.lp<=0){
-        showMessage("LP가 부족합니다.");
-        return;
-    }
-
-    player.lp--;
-
-    player.level++;
-
-    player.maxHp+=3;
-    player.hp=player.maxHp;
-
-    updateUI();
-}
-
-
-/* =========================================================
-   무기 업그레이드
-========================================================= */
-
-function upgradeWeapon(){
-
-    const cost=100+player.weaponUpgrade*100;
-
-    if(player.coins<cost){
-
-        showMessage("코인이 부족합니다.");
-
-        return;
-    }
-
-    player.coins-=cost;
-    player.weaponUpgrade++;
-
-    showMessage(
-        `${getWeapon().name} 강화 +${player.weaponUpgrade}`
-    );
-
-    updateUI();
-}
-
-
-/* =========================================================
-   다음 무기 구매
-========================================================= */
-
-function buyWeapon(index){
-
-    if(index<=player.weapon){
-
-        showMessage("이미 보유한 무기입니다.");
-        return;
-    }
-
-    if(index!==player.weapon+1){
-
-        showMessage("먼저 이전 무기를 구매하세요.");
-        return;
-    }
-
-    const cost=500*(index+1);
-
-    if(player.coins<cost){
-
-        showMessage(
-            `코인 ${cost}개가 필요합니다.`
-        );
-
-        return;
-    }
-
-    player.coins-=cost;
-    player.weapon=index;
-    player.weaponUpgrade=0;
-
-    showMessage(
-        `🔓 ${weapons[index].name} 획득!`
-    );
-
-    updateUI();
-    openShop();
-}
-
-
-/* =========================================================
-   탈것
-========================================================= */
-
-function useMount(type){
-
-    const r=getRegion(player.x,player.y);
-
-    /*
-      바다에서는 육상 탈것 탑승 불가
-    */
-
-    if(r.water && mounts[type].type!=="air"){
-
-        showMessage(
-            "🌊 이곳에서는 비행기/전투기만 사용할 수 있습니다."
-        );
-
-        return;
-    }
-
-    player.mount=type;
-
-    showMessage(
-        `${mounts[type].name} 탑승!`
-    );
-
-    updateUI();
-}
-
-
-/* =========================================================
-   상점
-========================================================= */
-
-function openShop(){
-
-    const box=document.getElementById("shopContent");
-
-    box.innerHTML="";
-
-    weapons.forEach((w,i)=>{
-
-        const card=document.createElement("div");
-
-        card.className="card";
-
-        let price=500*(i+1);
-
-        card.innerHTML=`
-            <b>${i+1}. ${w.name}</b>
-            <div class="small">
-                공격력 ${w.damage}<br>
-                사거리 ${w.range}
-            </div>
-            ${
-                w.skin
-                ? `<div>🎨 ${w.skin}</div>`
-                :""
-            }
-            <button onclick="buyWeapon(${i})">
-                ${
-                    i<=player.weapon
-                    ?"보유"
-                    :`🪙 ${price}`
-                }
-            </button>
-        `;
-
-        box.appendChild(card);
-    });
-
-    document.getElementById("shopModal")
-        .classList.add("show");
-}
-
-
-/* =========================================================
-   일일 상점
-========================================================= */
-
-let dailyItems=[];
-
-
-function makeDailyShop(){
-
-    const possible=[
-        {
-            name:"🎃 할로윈 마스크",
-            cost:5,
-            type:"skin",
-            limited:true
-        },
-        {
-            name:"👻 유령 코스튬",
-            cost:7,
-            type:"skin",
-            limited:true
-        },
-        {
-            name:"🎄 크리스마스 코스튬",
-            cost:8,
-            type:"skin",
-            limited:true
-        },
-        {
-            name:"🎅 산타 모자",
-            cost:4,
-            type:"cosmetic",
-            limited:true
-        },
-        {
-            name:"🎁 황금 스킨",
-            cost:10,
-            type:"skin",
-            limited:false
-        },
-        {
-            name:"💎 크리스탈 스킨",
-            cost:12,
-            type:"skin",
-            limited:false
-        },
-        {
-            name:"🌈 레인보우 스킨",
-            cost:15,
-            type:"skin",
-            limited:false
-        },
-        {
-            name:"🚗 산타썰매",
-            cost:15,
-            type:"mountSkin",
-            limited:true
-        },
-        {
-            name:"🎄 캔디 지팡이",
-            cost:10,
-            type:"weaponSkin",
-            limited:true
-        },
-        {
-            name:"🧦 양말 발사기",
-            cost:10,
-            type:"weaponSkin",
-            limited:true
-        }
-    ];
-
-    dailyItems=[];
-
-    while(dailyItems.length<5){
-
-        const item=
-            possible[
-                Math.floor(
-                    Math.random()*possible.length
-                )
-            ];
-
-        if(!dailyItems.includes(item)){
-            dailyItems.push(item);
-        }
-    }
-}
-
-
-function openDaily(){
-
-    makeDailyShop();
-
-    const box=document.getElementById("dailyContent");
-
-    box.innerHTML="";
-
-    dailyItems.forEach((item,i)=>{
-
-        const card=document.createElement("div");
-
-        card.className="card";
-
-        card.innerHTML=`
-            <b>${item.name}</b>
-            <div class="small">
-                ${
-                    item.limited
-                    ?"⭐ 한정"
-                    :"기본"
-                }
-            </div>
-
-            <button onclick="buyDaily(${i})">
-                ⭐ ${item.cost}
-            </button>
-        `;
-
-        box.appendChild(card);
-    });
-
-    document.getElementById("dailyModal")
-        .classList.add("show");
-}
-
-
-function buyDaily(i){
-
-    const item=dailyItems[i];
-
-    if(!item) return;
-
-    if(player.stars<item.cost){
-
-        showMessage("스타가 부족합니다.");
-        return;
-    }
-
-    player.stars-=item.cost;
-
-    showMessage(
-        `${item.name} 획득!`
-    );
-
-    updateUI();
-}
-
-
-/* =========================================================
-   캐릭터
-========================================================= */
-
-function openCharacter(){
-
-    document.getElementById("charLP").textContent=
-        player.lp;
-
-    document.getElementById("characterModal")
-        .classList.add("show");
-}
-
-
-function changeColor(color){
-
-    player.color=color;
-
-    showMessage("캐릭터 색상이 변경되었습니다.");
-
-    updateUI();
-}
-
-
-/* =========================================================
-   이벤트
-========================================================= */
-
-function isHalloweenWeek(){
-
-    const now=new Date();
-
-    /*
-      할로윈이 있는 주:
-      10월 25~31일을 포함하는 주를
-      월요일 기준으로 판단.
-    */
-
-    const year=now.getFullYear();
-
-    const halloween=new Date(year,9,31);
-
-    const start=new Date(halloween);
-
-    const day=start.getDay();
-
-    const mondayOffset=(day+6)%7;
-
-    start.setDate(start.getDate()-mondayOffset);
-
-    const end=new Date(start);
-
-    end.setDate(end.getDate()+6);
-
-    return now>=start && now<=end;
-}
-
-
-function isChristmasWeek(){
-
-    const now=new Date();
-
-    const year=now.getFullYear();
-
-    const christmas=new Date(year,11,25);
-
-    const start=new Date(christmas);
-
-    const day=start.getDay();
-
-    const mondayOffset=(day+6)%7;
-
-    start.setDate(
-        start.getDate()-mondayOffset
-    );
-
-    const end=new Date(start);
-
-    end.setDate(end.getDate()+6);
-
-    return now>=start && now<=end;
-}
-
-
-function getEvent(){
-
-    if(isHalloweenWeek())
-        return "halloween";
-
-    if(isChristmasWeek())
-        return "christmas";
-
-    return null;
 }
 
 
@@ -1768,52 +1748,67 @@ function getEvent(){
    몬스터 AI
 ========================================================= */
 
-function updateEnemy(e,dt){
+function updateEnemy(enemy,dt){
 
-    const base=monsters[e.type];
+    const base=MONSTERS[enemy.type];
 
-    const dx=player.x-e.x;
-    const dy=player.y-e.y;
+    const dx=player.x-enemy.x;
+    const dy=player.y-enemy.y;
 
-    const dist=Math.hypot(dx,dy);
+    const distance=Math.hypot(dx,dy);
 
     /*
-      감지 범위 안에 들어오면 추적
+      감지 범위
     */
 
-    if(dist<=base.detect){
+    if(distance<=base.detect){
 
-        if(dist>35){
+        /*
+          플레이어 추적
+        */
 
-            e.x += dx/dist*base.speed*dt;
-            e.y += dy/dist*base.speed*dt;
+        if(distance>40){
+
+            enemy.x+=
+                dx/distance*
+                base.speed*
+                dt;
+
+            enemy.y+=
+                dy/distance*
+                base.speed*
+                dt;
         }
 
-        if(dist<45){
+        /*
+          공격
+        */
 
-            e.attackTimer-=dt;
+        if(distance<45){
 
-            if(e.attackTimer<=0){
+            enemy.attackTimer-=dt;
 
-                e.attackTimer=1.2;
+            if(enemy.attackTimer<=0){
+
+                enemy.attackTimer=1.2;
 
                 player.hp-=base.damage;
 
                 burst(
                     player.x,
                     player.y,
-                    "#ff3344"
+                    "#ff3333"
                 );
 
                 if(player.hp<=0){
 
                     player.hp=player.maxHp;
 
-                    player.x=e.homeX;
-                    player.y=e.homeY;
+                    player.x=enemy.homeX;
+                    player.y=enemy.homeY;
 
                     showMessage(
-                        "💀 쓰러졌습니다! 원래 위치로 돌아갑니다."
+                        "💀 쓰러졌습니다!"
                     );
                 }
             }
@@ -1822,29 +1817,149 @@ function updateEnemy(e,dt){
     }else{
 
         /*
-          플레이어가 멀어졌으면 원래 위치로 복귀
+          플레이어가 멀어졌으면
+          원래 위치로 복귀
         */
 
-        const hx=e.homeX-e.x;
-        const hy=e.homeY-e.y;
+        const hx=
+            enemy.homeX-enemy.x;
 
-        const homeDist=Math.hypot(hx,hy);
+        const hy=
+            enemy.homeY-enemy.y;
 
-        if(homeDist>5){
+        const homeDistance=
+            Math.hypot(hx,hy);
 
-            e.x += hx/homeDist*base.speed*.7*dt;
-            e.y += hy/homeDist*base.speed*.7*dt;
+        if(homeDistance>6){
 
+            enemy.x+=
+                hx/homeDistance*
+                base.speed*.65*
+                dt;
+
+            enemy.y+=
+                hy/homeDistance*
+                base.speed*.65*
+                dt;
         }
     }
 
-    if(e.hitFlash>0)
-        e.hitFlash-=dt;
+    if(enemy.flash>0)
+        enemy.flash-=dt;
 }
 
 
 /* =========================================================
-   투사체
+   처치
+========================================================= */
+
+function killEnemy(enemy){
+
+    const base=MONSTERS[enemy.type];
+
+    player.coins+=
+        Math.floor(
+            base.hp*.4+
+            Math.random()*30
+        );
+
+    player.lp+=
+        base.boss
+        ?5
+        :1;
+
+    addXP(
+        Math.max(
+            5,
+            Math.floor(base.hp/8)
+        )
+    );
+
+    if(base.boss){
+
+        player.stars+=2;
+
+        showMessage(
+            "👑 보스 처치! ⭐ +2"
+        );
+    }
+
+    burst(
+        enemy.x,
+        enemy.y,
+        base.color
+    );
+
+    enemies=
+        enemies.filter(
+            e=>e!==enemy
+        );
+}
+
+
+/* =========================================================
+   이동
+========================================================= */
+
+function updatePlayer(dt){
+
+    let x=0;
+    let y=0;
+
+    if(keys["w"] || keys["arrowup"])
+        y--;
+
+    if(keys["s"] || keys["arrowdown"])
+        y++;
+
+    if(keys["a"] || keys["arrowleft"])
+        x--;
+
+    if(keys["d"] || keys["arrowright"])
+        x++;
+
+    x+=joyX;
+    y+=joyY;
+
+    const len=Math.hypot(x,y);
+
+    if(len>0){
+
+        x/=len;
+        y/=len;
+
+        let speed=180;
+
+        if(player.equipment.mount){
+
+            const m=MOUNTS.find(
+                m=>m.id===player.equipment.mount
+            );
+
+            if(m)
+                speed=m.speed;
+        }
+
+        const nx=player.x+x*speed*dt;
+        const ny=player.y+y*speed*dt;
+
+        if(canMove(nx,ny)){
+
+            player.x=nx;
+            player.y=ny;
+        }
+    }
+
+    if(player.attackTimer>0)
+        player.attackTimer-=dt;
+
+    if(player.attackAnimation>0)
+        player.attackAnimation-=dt;
+}
+
+
+/* =========================================================
+   투사체 업데이트
 ========================================================= */
 
 function updateProjectiles(dt){
@@ -1856,29 +1971,29 @@ function updateProjectiles(dt){
 
         p.life-=dt;
 
-        for(const e of enemies){
+        for(const enemy of [...enemies]){
 
-            const d=Math.hypot(
-                e.x-p.x,
-                e.y-p.y
-            );
+            if(
+                Math.hypot(
+                    enemy.x-p.x,
+                    enemy.y-p.y
+                )<28
+            ){
 
-            if(d<25){
+                enemy.hp-=p.damage;
 
-                e.hp-=p.damage;
-
-                e.hitFlash=.1;
+                enemy.flash=.1;
 
                 burst(
-                    e.x,
-                    e.y,
-                    "#ffff88"
+                    enemy.x,
+                    enemy.y,
+                    "#ffe75b"
                 );
 
                 p.life=0;
 
-                if(e.hp<=0)
-                    killEnemy(e);
+                if(enemy.hp<=0)
+                    killEnemy(enemy);
 
                 break;
             }
@@ -1886,7 +2001,9 @@ function updateProjectiles(dt){
     }
 
     projectiles=
-        projectiles.filter(p=>p.life>0);
+        projectiles.filter(
+            p=>p.life>0
+        );
 }
 
 
@@ -1896,9 +2013,10 @@ function updateProjectiles(dt){
 
 function burst(x,y,color){
 
-    for(let i=0;i<8;i++){
+    for(let i=0;i<9;i++){
 
         particles.push({
+
             x,
             y,
 
@@ -1924,70 +2042,9 @@ function updateParticles(dt){
     }
 
     particles=
-        particles.filter(p=>p.life>0);
-}
-
-
-/* =========================================================
-   플레이어 이동
-========================================================= */
-
-function updatePlayer(dt){
-
-    let dx=0;
-    let dy=0;
-
-    if(keys["w"] || keys["arrowup"])
-        dy--;
-
-    if(keys["s"] || keys["arrowdown"])
-        dy++;
-
-    if(keys["a"] || keys["arrowleft"])
-        dx--;
-
-    if(keys["d"] || keys["arrowright"])
-        dx++;
-
-    dx+=joyX;
-    dy+=joyY;
-
-    const len=Math.hypot(dx,dy);
-
-    if(len>0){
-
-        dx/=len;
-        dy/=len;
-
-        let speed=player.speed;
-
-        if(player.mount){
-            speed=mounts[player.mount].speed;
-        }
-
-        const nx=player.x+dx*speed*dt;
-        const ny=player.y+dy*speed*dt;
-
-        if(canMoveTo(nx,ny)){
-
-            player.x=nx;
-            player.y=ny;
-        }
-    }
-
-    if(player.attackCooldown>0)
-        player.attackCooldown-=dt;
-}
-
-
-/* =========================================================
-   카메라
-========================================================= */
-
-function updateCamera(){
-
-    camera.x=player.x-W/2;
-    camera.y=player.y-H/2;
+        particles.filter(
+            p=>p.life>0
+        );
 }
 
 
@@ -1999,7 +2056,8 @@ function draw(){
 
     ctx.clearRect(0,0,W,H);
 
-    updateCamera();
+    camera.x=player.x-W/2;
+    camera.y=player.y-H/2;
 
     ctx.save();
 
@@ -2025,10 +2083,6 @@ function draw(){
 
 function drawWorld(){
 
-    /*
-      거대한 자연스러운 세계
-    */
-
     ctx.fillStyle="#20251f";
 
     ctx.fillRect(
@@ -2038,63 +2092,54 @@ function drawWorld(){
         H+4000
     );
 
-    for(const r of regions){
+    for(const r of REGIONS){
 
         ctx.save();
 
-        /*
-          직사각형 느낌을 줄이기 위해
-          둥글고 불규칙한 경계 사용
-        */
-
         ctx.beginPath();
 
-        const x=r.x;
-        const y=r.y;
-        const w=r.w;
-        const h=r.h;
+        /*
+          타원 + 굴곡을 섞어
+          단순 직사각형 맵을 피함
+        */
 
-        ctx.moveTo(x+100,y);
+        const points=32;
 
-        ctx.quadraticCurveTo(
-            x+w*.4,
-            y-50,
-            x+w-100,
-            y+30
-        );
+        for(let i=0;i<=points;i++){
 
-        ctx.quadraticCurveTo(
-            x+w+40,
-            y+h*.5,
-            x+w-70,
-            y+h-40
-        );
+            const a=
+                Math.PI*2*i/points;
 
-        ctx.quadraticCurveTo(
-            x+w*.5,
-            y+h+50,
-            x+60,
-            y+h-30
-        );
+            const wobble=
+                1+
+                Math.sin(a*5+r.cx)*.08+
+                Math.cos(a*3+r.cy)*.05;
 
-        ctx.quadraticCurveTo(
-            x-50,
-            y+h*.5,
-            x+100,
-            y
-        );
+            const x=
+                r.cx+
+                Math.cos(a)*
+                r.rx*wobble;
+
+            const y=
+                r.cy+
+                Math.sin(a)*
+                r.ry*wobble;
+
+            if(i===0)
+                ctx.moveTo(x,y);
+            else
+                ctx.lineTo(x,y);
+        }
 
         ctx.closePath();
 
         ctx.fillStyle=r.color;
-
         ctx.fill();
 
         ctx.strokeStyle=
-            "rgba(0,0,0,.25)";
+            "rgba(0,0,0,.3)";
 
-        ctx.lineWidth=8;
-
+        ctx.lineWidth=10;
         ctx.stroke();
 
         drawRegionDecor(r);
@@ -2112,91 +2157,83 @@ function drawWorld(){
 
 function drawRegionDecor(r){
 
-    const count=
+    const amount=
         Math.floor(
-            Math.min(r.w,r.h)/70
+            Math.min(
+                r.rx,
+                r.ry
+            )/20
         );
 
-    for(let i=0;i<count;i++){
+    for(let i=0;i<amount;i++){
+
+        const angle=
+            i*2.399;
+
+        const radius=
+            .25+
+            ((i*17)%70)/100;
 
         const x=
-            r.x+40+
-            ((i*137)%Math.max(100,r.w-80));
+            r.cx+
+            Math.cos(angle)*
+            r.rx*
+            radius;
 
         const y=
-            r.y+50+
-            ((i*89)%Math.max(100,r.h-100));
+            r.cy+
+            Math.sin(angle)*
+            r.ry*
+            radius;
 
-        if(r.name==="초원"){
-            drawTree(x,y,"#28743a");
-        }
-
-        if(r.name==="정글"){
-            drawTree(x,y,"#124a28");
-            drawTree(x+25,y+20,"#185d31");
-        }
-
-        if(r.name==="북극"){
-            drawIce(x,y);
-        }
-
-        if(
-            r.name==="火山" ||
-            r.name==="지옥"
-        ){
-            drawRock(x,y,"#2a1717");
-        }
-    }
-
-    /*
-      물결
-    */
-
-    if(r.water){
-
-        ctx.strokeStyle=
-            "rgba(255,255,255,.16)";
-
-        ctx.lineWidth=3;
-
-        for(let i=0;i<12;i++){
-
-            const x=r.x+100+(i*123)%(r.w-200);
-            const y=r.y+100+(i*71)%(r.h-200);
-
-            ctx.beginPath();
-
-            ctx.arc(
+        if(r.id==="meadow"){
+            drawTree(
                 x,
                 y,
-                30,
-                0,
-                Math.PI
+                "#26733a"
             );
 
-            ctx.stroke();
+            if(i%4===0)
+                drawFlower(x+15,y+10);
         }
+
+        if(r.id==="jungle"){
+
+            drawTree(
+                x,
+                y,
+                "#124728"
+            );
+
+            drawVine(x,y);
+        }
+
+        if(r.id==="arctic")
+            drawIce(x,y);
+
+        if(
+            r.id==="volcano" ||
+            r.id==="hell"
+        ){
+            drawRock(
+                x,
+                y,
+                "#241717"
+            );
+        }
+
+        if(r.water)
+            drawWave(x,y);
     }
 
-    /*
-      화산 지역
-    */
+    if(r.id==="volcano"){
 
-    if(
-        r.name==="火山"
-    ){
+        for(let i=0;i<4;i++){
 
-        for(let i=0;i<5;i++){
-
-            const x=
-                r.x+100+
-                i*170;
-
-            const y=
-                r.y+200+
-                (i%2)*200;
-
-            drawVolcano(x,y);
+            drawVolcano(
+                r.cx-r.rx*.55+i*180,
+                r.cy-80
+            );
         }
     }
 }
@@ -2204,7 +2241,7 @@ function drawRegionDecor(r){
 
 function drawTree(x,y,color){
 
-    ctx.fillStyle="#67422a";
+    ctx.fillStyle="#67442b";
 
     ctx.fillRect(
         x-5,
@@ -2220,10 +2257,63 @@ function drawTree(x,y,color){
     ctx.arc(
         x,
         y-10,
-        25,
+        26,
         0,
         Math.PI*2
     );
+
+    ctx.fill();
+}
+
+
+function drawFlower(x,y){
+
+    ctx.fillStyle="#ffd84a";
+
+    ctx.beginPath();
+
+    ctx.arc(
+        x,
+        y,
+        4,
+        0,
+        Math.PI*2
+    );
+
+    ctx.fill();
+}
+
+
+function drawVine(x,y){
+
+    ctx.strokeStyle="#0b3c22";
+    ctx.lineWidth=3;
+
+    ctx.beginPath();
+
+    ctx.moveTo(x,y-15);
+    ctx.quadraticCurveTo(
+        x+20,
+        y+15,
+        x+3,
+        y+30
+    );
+
+    ctx.stroke();
+}
+
+
+function drawIce(x,y){
+
+    ctx.fillStyle="#eaffff";
+
+    ctx.beginPath();
+
+    ctx.moveTo(x,y-25);
+    ctx.lineTo(x+22,y+20);
+    ctx.lineTo(x-22,y+20);
+
+    ctx.closePath();
 
     ctx.fill();
 }
@@ -2235,53 +2325,91 @@ function drawRock(x,y,color){
 
     ctx.beginPath();
 
-    ctx.moveTo(x-20,y+10);
-    ctx.lineTo(x-10,y-15);
-    ctx.lineTo(x+15,y-20);
-    ctx.lineTo(x+25,y+10);
+    ctx.moveTo(
+        x-20,
+        y+12
+    );
+
+    ctx.lineTo(
+        x-10,
+        y-15
+    );
+
+    ctx.lineTo(
+        x+15,
+        y-20
+    );
+
+    ctx.lineTo(
+        x+25,
+        y+10
+    );
+
     ctx.closePath();
 
     ctx.fill();
 }
 
 
-function drawIce(x,y){
+function drawWave(x,y){
 
-    ctx.fillStyle="#eaffff";
+    ctx.strokeStyle=
+        "rgba(255,255,255,.18)";
 
-    ctx.beginPath();
-
-    ctx.moveTo(x,y-25);
-    ctx.lineTo(x+20,y+20);
-    ctx.lineTo(x-20,y+20);
-    ctx.closePath();
-
-    ctx.fill();
-}
-
-
-function drawVolcano(x,y){
-
-    ctx.fillStyle="#38211e";
-
-    ctx.beginPath();
-
-    ctx.moveTo(x-70,y+50);
-    ctx.lineTo(x-25,y-60);
-    ctx.lineTo(x+20,y-60);
-    ctx.lineTo(x+75,y+50);
-    ctx.closePath();
-
-    ctx.fill();
-
-    ctx.fillStyle="#ff4a19";
+    ctx.lineWidth=2;
 
     ctx.beginPath();
 
     ctx.arc(
         x,
-        y-45,
-        18,
+        y,
+        25,
+        0,
+        Math.PI
+    );
+
+    ctx.stroke();
+}
+
+
+function drawVolcano(x,y){
+
+    ctx.fillStyle="#38211c";
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        x-75,
+        y+60
+    );
+
+    ctx.lineTo(
+        x-25,
+        y-60
+    );
+
+    ctx.lineTo(
+        x+25,
+        y-60
+    );
+
+    ctx.lineTo(
+        x+75,
+        y+60
+    );
+
+    ctx.closePath();
+
+    ctx.fill();
+
+    ctx.fillStyle="#ff481b";
+
+    ctx.beginPath();
+
+    ctx.arc(
+        x,
+        y-50,
+        17,
         0,
         Math.PI*2
     );
@@ -2296,37 +2424,144 @@ function drawVolcano(x,y){
 
 function drawPaths(){
 
-    ctx.lineWidth=45;
-    ctx.lineCap="round";
     ctx.strokeStyle="#b89a62";
+    ctx.lineWidth=42;
+    ctx.lineCap="round";
 
     ctx.beginPath();
 
-    ctx.moveTo(-500,500);
+    ctx.moveTo(-1000,500);
+
     ctx.quadraticCurveTo(
-        400,400,
-        900,600
+        -200,
+        250,
+        500,
+        400
     );
 
     ctx.quadraticCurveTo(
-        1300,700,
-        1650,500
+        1000,
+        550,
+        1700,
+        400
     );
 
     ctx.stroke();
 
-    ctx.lineWidth=28;
-    ctx.strokeStyle="#d0b477";
+    ctx.strokeStyle="#d1b77c";
+    ctx.lineWidth=25;
 
     ctx.beginPath();
 
-    ctx.moveTo(500,600);
+    ctx.moveTo(500,400);
+
     ctx.quadraticCurveTo(
-        300,1000,
-        500,1600
+        350,
+        1000,
+        350,
+        1650
     );
 
     ctx.stroke();
+}
+
+
+/* =========================================================
+   조준
+========================================================= */
+
+function drawAim(){
+
+    if(!aim.active)
+        return;
+
+    const weapon=currentWeapon();
+
+    const angle=
+        Math.atan2(
+            aim.y-player.y,
+            aim.x-player.x
+        );
+
+    ctx.save();
+
+    /*
+      사거리
+    */
+
+    ctx.strokeStyle=
+        "rgba(255,255,255,.25)";
+
+    ctx.lineWidth=2;
+
+    ctx.setLineDash([8,8]);
+
+    ctx.beginPath();
+
+    ctx.arc(
+        player.x,
+        player.y,
+        weapon.range,
+        0,
+        Math.PI*2
+    );
+
+    ctx.stroke();
+
+    ctx.setLineDash([]);
+
+    /*
+      실제 120도 공격 범위
+    */
+
+    if(!weapon.projectile){
+
+        ctx.fillStyle=
+            "rgba(255,220,70,.08)";
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            player.x,
+            player.y
+        );
+
+        ctx.arc(
+            player.x,
+            player.y,
+            weapon.range,
+            angle-Math.PI/3,
+            angle+Math.PI/3
+        );
+
+        ctx.closePath();
+
+        ctx.fill();
+
+        ctx.strokeStyle=
+            "rgba(255,220,70,.45)";
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            player.x,
+            player.y
+        );
+
+        ctx.arc(
+            player.x,
+            player.y,
+            weapon.range,
+            angle-Math.PI/3,
+            angle+Math.PI/3
+        );
+
+        ctx.closePath();
+
+        ctx.stroke();
+    }
+
+    ctx.restore();
 }
 
 
@@ -2339,38 +2574,32 @@ function drawPlayer(){
     const x=player.x;
     const y=player.y;
 
-    /*
-      탈것
-    */
-
-    if(player.mount){
-
-        if(player.mount==="bike")
-            drawBike(x,y);
-
-        if(player.mount==="car")
-            drawCar(x,y);
-
-        if(player.mount==="plane")
-            drawPlane(x,y);
-
-        if(player.mount==="fighter")
-            drawFighter(x,y);
-    }
+    drawMount();
 
     /*
-      캐릭터
+      몸
     */
 
-    ctx.fillStyle=
+    let clothesColor=
         player.color;
+
+    if(player.equipment.clothes==="red")
+        clothesColor="#e74646";
+
+    if(player.equipment.clothes==="green")
+        clothesColor="#42b96a";
+
+    if(player.equipment.clothes==="blue")
+        clothesColor="#4c9cff";
+
+    ctx.fillStyle=clothesColor;
 
     ctx.beginPath();
 
     ctx.arc(
         x,
-        y,
-        18,
+        y+4,
+        17,
         0,
         Math.PI*2
     );
@@ -2383,29 +2612,96 @@ function drawPlayer(){
 
     ctx.fillStyle=
         player.gender==="girl"
-        ? "#5b321f"
-        : "#3b2417";
+        ?"#552e1c"
+        :"#382518";
 
     ctx.beginPath();
 
     ctx.arc(
         x,
         y-13,
-        13,
-        Math.PI,
+        14,
+        0,
         Math.PI*2
     );
 
     ctx.fill();
 
     /*
-      무기
+      얼굴
     */
 
-    drawWeapon(
+    ctx.fillStyle="#ffd0a0";
+
+    ctx.beginPath();
+
+    ctx.arc(
         x,
-        y
+        y-10,
+        10,
+        0,
+        Math.PI*2
     );
+
+    ctx.fill();
+
+    /*
+      모자
+    */
+
+    drawHat();
+
+    /*
+      액세서리
+    */
+
+    if(
+        player.equipment.accessory==="star"
+    ){
+
+        ctx.fillStyle="#ffe04b";
+
+        ctx.font="20px Arial";
+
+        ctx.fillText(
+            "⭐",
+            x+20,
+            y-15
+        );
+    }
+
+    if(
+        player.equipment.accessory==="wings"
+    ){
+
+        ctx.fillStyle="#e5f5ff";
+
+        ctx.beginPath();
+
+        ctx.ellipse(
+            x-20,
+            y,
+            15,
+            8,
+            -.5,
+            0,
+            Math.PI*2
+        );
+
+        ctx.ellipse(
+            x+20,
+            y,
+            15,
+            8,
+            .5,
+            0,
+            Math.PI*2
+        );
+
+        ctx.fill();
+    }
+
+    drawWeapon();
 
     /*
       HP
@@ -2414,18 +2710,18 @@ function drawPlayer(){
     ctx.fillStyle="#000";
 
     ctx.fillRect(
-        x-22,
-        y-38,
-        44,
+        x-24,
+        y-42,
+        48,
         6
     );
 
-    ctx.fillStyle="#40df55";
+    ctx.fillStyle="#40dc57";
 
     ctx.fillRect(
-        x-22,
-        y-38,
-        44*
+        x-24,
+        y-42,
+        48*
         Math.max(
             0,
             player.hp/player.maxHp
@@ -2436,77 +2732,320 @@ function drawPlayer(){
 
 
 /* =========================================================
-   무기 그리기
+   모자
 ========================================================= */
 
-function drawWeapon(x,y){
+function drawHat(){
 
-    let dx=aim.x-x;
-    let dy=aim.y-y;
+    const hat=player.equipment.hat;
 
-    const len=Math.hypot(dx,dy)||1;
+    if(hat==="hat"){
 
-    dx/=len;
-    dy/=len;
-
-    const w=getWeapon();
-
-    ctx.save();
-
-    ctx.translate(x,y);
-
-    ctx.rotate(
-        Math.atan2(dy,dx)
-    );
-
-    ctx.lineCap="round";
-
-    if(w.name==="나무 막대기"){
-
-        ctx.strokeStyle="#754525";
-        ctx.lineWidth=7;
-
-        ctx.beginPath();
-        ctx.moveTo(10,0);
-        ctx.lineTo(48,0);
-        ctx.stroke();
-    }
-
-    else if(w.name==="돌"){
-
-        ctx.fillStyle="#777";
-
-        ctx.beginPath();
-        ctx.arc(35,0,10,0,Math.PI*2);
-        ctx.fill();
-    }
-
-    else if(w.name==="도끼"){
-
-        ctx.strokeStyle="#754525";
-        ctx.lineWidth=5;
-
-        ctx.beginPath();
-        ctx.moveTo(8,0);
-        ctx.lineTo(48,0);
-        ctx.stroke();
-
-        ctx.fillStyle="#777";
+        ctx.fillStyle="#222";
 
         ctx.fillRect(
-            35,-13,
-            18,26
+            player.x-15,
+            player.y-31,
+            30,
+            7
+        );
+
+        ctx.fillRect(
+            player.x-9,
+            player.y-40,
+            18,
+            10
         );
     }
 
-    else if(
-        w.type==="melee"
+    if(hat==="halloween"){
+
+        ctx.fillStyle="#171017";
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            player.x-17,
+            player.y-25
+        );
+
+        ctx.lineTo(
+            player.x,
+            player.y-55
+        );
+
+        ctx.lineTo(
+            player.x+17,
+            player.y-25
+        );
+
+        ctx.closePath();
+
+        ctx.fill();
+
+        ctx.fillStyle="#ff7b18";
+
+        ctx.beginPath();
+
+        ctx.arc(
+            player.x,
+            player.y-39,
+            5,
+            0,
+            Math.PI*2
+        );
+
+        ctx.fill();
+    }
+
+    if(hat==="christmas"){
+
+        ctx.fillStyle="#e73535";
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            player.x-18,
+            player.y-27
+        );
+
+        ctx.lineTo(
+            player.x+4,
+            player.y-52
+        );
+
+        ctx.lineTo(
+            player.x+18,
+            player.y-27
+        );
+
+        ctx.closePath();
+
+        ctx.fill();
+
+        ctx.fillStyle="#fff";
+
+        ctx.beginPath();
+
+        ctx.arc(
+            player.x+5,
+            player.y-53,
+            5,
+            0,
+            Math.PI*2
+        );
+
+        ctx.fill();
+    }
+}
+
+
+/* =========================================================
+   무기 렌더링
+========================================================= */
+
+function drawWeapon(){
+
+    const weapon=currentWeapon();
+
+    let angle=
+        Math.atan2(
+            aim.y-player.y,
+            aim.x-player.x
+        );
+
+    /*
+      공격 애니메이션:
+      -60 → +60
+    */
+
+    if(player.attackAnimation>0){
+
+        const progress=
+            1-
+            player.attackAnimation/.28;
+
+        angle=
+            player.attackAngle-
+            Math.PI/3+
+            progress*
+            Math.PI*2/3;
+    }
+
+    ctx.save();
+
+    ctx.translate(
+        player.x,
+        player.y
+    );
+
+    ctx.rotate(angle);
+
+    let skin=
+        player.equipment.weaponSkin;
+
+    /*
+      캔디 지팡이
+    */
+
+    if(
+        weapon.id==="pipe" &&
+        skin==="candy"
     ){
 
+        ctx.strokeStyle="#fff";
+        ctx.lineWidth=8;
+
+        ctx.beginPath();
+
+        ctx.moveTo(8,0);
+        ctx.lineTo(48,0);
+
+        ctx.stroke();
+
+        ctx.strokeStyle="#ef4444";
+        ctx.lineWidth=4;
+
+        ctx.beginPath();
+
+        ctx.moveTo(25,-4);
+        ctx.lineTo(40,4);
+
+        ctx.stroke();
+
+        return ctx.restore();
+    }
+
+    /*
+      양말 발사기
+    */
+
+    if(
+        weapon.id==="rocket" &&
+        skin==="sock"
+    ){
+
+        ctx.fillStyle="#e73636";
+
+        ctx.fillRect(
+            10,
+            -7,
+            42,
+            14
+        );
+
+        ctx.fillStyle="#fff";
+
+        ctx.fillRect(
+            43,
+            -7,
+            9,
+            14
+        );
+
+        return ctx.restore();
+    }
+
+    /*
+      기본 무기
+    */
+
+    ctx.lineCap="round";
+
+    if(weapon.id==="stick"){
+
+        ctx.strokeStyle="#754526";
+        ctx.lineWidth=8;
+
+        ctx.beginPath();
+
+        ctx.moveTo(8,0);
+        ctx.lineTo(52,0);
+
+        ctx.stroke();
+    }
+
+    else if(weapon.id==="stone"){
+
+        ctx.fillStyle="#777";
+
+        ctx.beginPath();
+
+        ctx.arc(
+            38,
+            0,
+            10,
+            0,
+            Math.PI*2
+        );
+
+        ctx.fill();
+    }
+
+    else if(weapon.id==="axe"){
+
+        ctx.strokeStyle="#704323";
+        ctx.lineWidth=6;
+
+        ctx.beginPath();
+
+        ctx.moveTo(8,0);
+        ctx.lineTo(45,0);
+
+        ctx.stroke();
+
+        ctx.fillStyle="#aaa";
+
+        ctx.fillRect(
+            35,
+            -14,
+            18,
+            28
+        );
+    }
+
+    else if(weapon.id==="rocket"){
+
+        ctx.fillStyle="#555";
+
+        ctx.fillRect(
+            10,
+            -7,
+            45,
+            14
+        );
+
+        ctx.fillStyle="#ff5522";
+
+        ctx.fillRect(
+            10,
+            -4,
+            8,
+            8
+        );
+    }
+
+    else if(weapon.id==="zeus"){
+
+        ctx.strokeStyle="#ffe34d";
+        ctx.lineWidth=7;
+
+        ctx.beginPath();
+
+        ctx.moveTo(8,0);
+        ctx.lineTo(25,-10);
+        ctx.lineTo(35,5);
+        ctx.lineTo(52,-5);
+
+        ctx.stroke();
+    }
+
+    else{
+
         ctx.strokeStyle=
-            w.name==="만년필"
-            ? "#111"
-            : "#d7d7d7";
+            weapon.id==="pen"
+            ?"#161616"
+            :"#ddd";
 
         ctx.lineWidth=7;
 
@@ -2515,22 +3054,22 @@ function drawWeapon(x,y){
         ctx.moveTo(8,0);
         ctx.lineTo(
             Math.min(
-                55,
-                w.range*.25
+                65,
+                weapon.range*.28
             ),
             0
         );
 
         ctx.stroke();
 
-        if(w.name==="만년필"){
+        if(weapon.id==="pen"){
 
-            ctx.fillStyle="#287dff";
+            ctx.fillStyle="#267cff";
 
             ctx.beginPath();
 
             ctx.arc(
-                50,
+                60,
                 0,
                 4,
                 0,
@@ -2541,197 +3080,203 @@ function drawWeapon(x,y){
         }
     }
 
-    else{
-
-        ctx.fillStyle=
-            w.name==="제우스의 번개"
-            ? "#ffe84a"
-            : "#ddd";
-
-        ctx.fillRect(
-            10,
-            -5,
-            30,
-            10
-        );
-    }
-
     ctx.restore();
 }
 
 
 /* =========================================================
-   탈것
+   탈것 렌더링
 ========================================================= */
 
-function drawBike(x,y){
+function drawMount(){
 
-    ctx.strokeStyle="#222";
-    ctx.lineWidth=5;
+    const mount=player.equipment.mount;
 
-    ctx.beginPath();
-    ctx.arc(x-18,y+8,13,0,Math.PI*2);
-    ctx.arc(x+18,y+8,13,0,Math.PI*2);
-    ctx.stroke();
-
-    ctx.strokeStyle="#d33";
-
-    ctx.beginPath();
-    ctx.moveTo(x-18,y+8);
-    ctx.lineTo(x,y-10);
-    ctx.lineTo(x+18,y+8);
-    ctx.lineTo(x-5,y+8);
-    ctx.stroke();
-}
-
-
-function drawCar(x,y){
-
-    ctx.fillStyle="#c73737";
-
-    ctx.fillRect(
-        x-32,
-        y-12,
-        64,
-        25
-    );
-
-    ctx.fillStyle="#a9dfff";
-
-    ctx.fillRect(
-        x-18,
-        y-25,
-        36,
-        15
-    );
-
-    /*
-      크리스마스 이벤트라면
-      자동차에 산타썰매 스킨을 입힌 모습.
-    */
-
-    if(
-        getEvent()==="christmas"
-    ){
-
-        ctx.fillStyle="#ffdf46";
-
-        ctx.fillRect(
-            x-37,
-            y+10,
-            74,
-            5
-        );
-
-        ctx.fillStyle="#fff";
-
-        ctx.fillRect(
-            x-30,
-            y-30,
-            60,
-            5
-        );
-    }
-}
-
-
-function drawPlane(x,y){
-
-    ctx.fillStyle="#ddd";
-
-    ctx.beginPath();
-
-    ctx.moveTo(x+40,y);
-    ctx.lineTo(x-30,y-15);
-    ctx.lineTo(x-10,y);
-    ctx.lineTo(x-30,y+15);
-    ctx.closePath();
-
-    ctx.fill();
-}
-
-
-function drawFighter(x,y){
-
-    ctx.fillStyle="#555";
-
-    ctx.beginPath();
-
-    ctx.moveTo(x+45,y);
-    ctx.lineTo(x-30,y-10);
-    ctx.lineTo(x-15,y);
-    ctx.lineTo(x-30,y+10);
-    ctx.closePath();
-
-    ctx.fill();
-
-    ctx.fillStyle="#ff3b30";
-
-    ctx.fillRect(
-        x-20,
-        y-3,
-        15,
-        6
-    );
-}
-
-
-/* =========================================================
-   조준 사거리
-========================================================= */
-
-function drawAim(){
-
-    if(!aim.active)
+    if(!mount)
         return;
 
-    const w=getWeapon();
+    const skin=player.equipment.mountSkin;
 
-    const dx=aim.x-player.x;
-    const dy=aim.y-player.y;
+    if(mount==="bike"){
 
-    const angle=Math.atan2(dy,dx);
+        ctx.strokeStyle="#222";
+        ctx.lineWidth=5;
 
-    ctx.save();
+        ctx.beginPath();
 
-    ctx.strokeStyle=
-        "rgba(255,255,255,.4)";
+        ctx.arc(
+            player.x-20,
+            player.y+15,
+            13,
+            0,
+            Math.PI*2
+        );
 
-    ctx.lineWidth=2;
+        ctx.arc(
+            player.x+20,
+            player.y+15,
+            13,
+            0,
+            Math.PI*2
+        );
 
-    ctx.setLineDash([8,8]);
+        ctx.stroke();
 
-    ctx.beginPath();
+        ctx.strokeStyle="#e43b3b";
 
-    ctx.arc(
-        player.x,
-        player.y,
-        w.range,
-        0,
-        Math.PI*2
-    );
+        ctx.beginPath();
 
-    ctx.stroke();
+        ctx.moveTo(
+            player.x-20,
+            player.y+15
+        );
 
-    ctx.beginPath();
+        ctx.lineTo(
+            player.x,
+            player.y-5
+        );
 
-    ctx.moveTo(
-        player.x,
-        player.y
-    );
+        ctx.lineTo(
+            player.x+20,
+            player.y+15
+        );
 
-    ctx.lineTo(
-        player.x+
-        Math.cos(angle)*w.range,
-        player.y+
-        Math.sin(angle)*w.range
-    );
+        ctx.lineTo(
+            player.x-5,
+            player.y+15
+        );
 
-    ctx.stroke();
+        ctx.stroke();
 
-    ctx.setLineDash([]);
+        return;
+    }
 
-    ctx.restore();
+    if(mount==="car"){
+
+        if(skin==="santaSleigh"){
+
+            ctx.fillStyle="#d93434";
+
+            ctx.fillRect(
+                player.x-38,
+                player.y-13,
+                76,
+                27
+            );
+
+            ctx.strokeStyle="#ffd34b";
+            ctx.lineWidth=5;
+
+            ctx.beginPath();
+
+            ctx.arc(
+                player.x,
+                player.y+15,
+                35,
+                0,
+                Math.PI
+            );
+
+            ctx.stroke();
+
+            ctx.fillStyle="#fff";
+
+            ctx.fillRect(
+                player.x-35,
+                player.y-17,
+                70,
+                5
+            );
+
+            return;
+        }
+
+        ctx.fillStyle="#d13b3b";
+
+        ctx.fillRect(
+            player.x-35,
+            player.y-12,
+            70,
+            26
+        );
+
+        ctx.fillStyle="#9ddfff";
+
+        ctx.fillRect(
+            player.x-20,
+            player.y-26,
+            40,
+            15
+        );
+
+        return;
+    }
+
+    if(mount==="plane"){
+
+        ctx.fillStyle="#ddd";
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            player.x+45,
+            player.y
+        );
+
+        ctx.lineTo(
+            player.x-30,
+            player.y-18
+        );
+
+        ctx.lineTo(
+            player.x-10,
+            player.y
+        );
+
+        ctx.lineTo(
+            player.x-30,
+            player.y+18
+        );
+
+        ctx.closePath();
+
+        ctx.fill();
+
+        return;
+    }
+
+    if(mount==="fighter"){
+
+        ctx.fillStyle="#555";
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            player.x+50,
+            player.y
+        );
+
+        ctx.lineTo(
+            player.x-35,
+            player.y-12
+        );
+
+        ctx.lineTo(
+            player.x-15,
+            player.y
+        );
+
+        ctx.lineTo(
+            player.x-35,
+            player.y+12
+        );
+
+        ctx.closePath();
+
+        ctx.fill();
+
+        return;
+    }
 }
 
 
@@ -2741,26 +3286,31 @@ function drawAim(){
 
 function drawEnemies(){
 
-    for(const e of enemies){
+    for(const enemy of enemies){
 
-        const base=monsters[e.type];
+        const base=MONSTERS[enemy.type];
 
         ctx.save();
 
-        ctx.translate(e.x,e.y);
+        ctx.translate(
+            enemy.x,
+            enemy.y
+        );
+
+        if(enemy.flash>0)
+            ctx.globalAlpha=.45;
 
         /*
-          피격 효과
+          슬라임
         */
 
-        if(e.hitFlash>0)
-            ctx.globalAlpha=.55;
+        if(
+            enemy.type==="slime" ||
+            enemy.type==="royalSlime" ||
+            enemy.type==="frostSlime"
+        ){
 
-        ctx.fillStyle=base.color;
-
-        if(e.type==="slime" ||
-           e.type==="royalSlime" ||
-           e.type==="frostSlime"){
+            ctx.fillStyle=base.color;
 
             ctx.beginPath();
 
@@ -2774,34 +3324,73 @@ function drawEnemies(){
 
             ctx.fill();
 
-            /*
-              눈
-            */
-
             ctx.fillStyle="#111";
 
             ctx.beginPath();
-            ctx.arc(-6,-4,3,0,Math.PI*2);
-            ctx.arc(6,-4,3,0,Math.PI*2);
+
+            ctx.arc(
+                -6,
+                -4,
+                3,
+                0,
+                Math.PI*2
+            );
+
+            ctx.arc(
+                6,
+                -4,
+                3,
+                0,
+                Math.PI*2
+            );
+
             ctx.fill();
         }
 
+        /*
+          피닉스
+        */
+
         else if(
-            e.type==="phoenix"
+            enemy.type==="phoenix"
         ){
+
+            ctx.fillStyle=base.color;
 
             ctx.beginPath();
 
-            ctx.moveTo(0,-base.size);
-            ctx.lineTo(base.size,base.size);
-            ctx.lineTo(0,base.size/2);
-            ctx.lineTo(-base.size,base.size);
+            ctx.moveTo(
+                0,
+                -base.size
+            );
+
+            ctx.lineTo(
+                base.size,
+                base.size
+            );
+
+            ctx.lineTo(
+                0,
+                base.size/2
+            );
+
+            ctx.lineTo(
+                -base.size,
+                base.size
+            );
+
             ctx.closePath();
 
             ctx.fill();
         }
 
+        /*
+          나머지 몬스터
+        */
+
         else{
+
+            ctx.fillStyle=base.color;
 
             ctx.beginPath();
 
@@ -2816,25 +3405,48 @@ function drawEnemies(){
             ctx.fill();
 
             /*
-              악마/오니 뿔
+              뿔
             */
 
             if(
-                e.type.includes("demon") ||
-                e.type==="oni"
+                enemy.type==="oni" ||
+                enemy.type.includes("Demon") ||
+                enemy.type.includes("demon")
             ){
 
                 ctx.fillStyle="#222";
 
                 ctx.beginPath();
 
-                ctx.moveTo(-12,-base.size+5);
-                ctx.lineTo(-5,-base.size-12);
-                ctx.lineTo(0,-base.size+5);
+                ctx.moveTo(
+                    -12,
+                    -base.size+5
+                );
 
-                ctx.moveTo(12,-base.size+5);
-                ctx.lineTo(5,-base.size-12);
-                ctx.lineTo(0,-base.size+5);
+                ctx.lineTo(
+                    -5,
+                    -base.size-12
+                );
+
+                ctx.lineTo(
+                    0,
+                    -base.size+5
+                );
+
+                ctx.moveTo(
+                    12,
+                    -base.size+5
+                );
+
+                ctx.lineTo(
+                    5,
+                    -base.size-12
+                );
+
+                ctx.lineTo(
+                    0,
+                    -base.size+5
+                );
 
                 ctx.fill();
             }
@@ -2854,7 +3466,7 @@ function drawEnemies(){
             ctx.arc(
                 0,
                 0,
-                base.size+8,
+                base.size+9,
                 0,
                 Math.PI*2
             );
@@ -2871,42 +3483,38 @@ function drawEnemies(){
         ctx.fillStyle="#000";
 
         ctx.fillRect(
-            e.x-base.size,
-            e.y-base.size-12,
+            enemy.x-base.size,
+            enemy.y-base.size-12,
             base.size*2,
             5
         );
 
         ctx.fillStyle=
             base.boss
-            ? "#ffca28"
-            : "#ef4444";
+            ?"#ffd43d"
+            :"#ef4444";
 
         ctx.fillRect(
-            e.x-base.size,
-            e.y-base.size-12,
+            enemy.x-base.size,
+            enemy.y-base.size-12,
             base.size*2*
             Math.max(
                 0,
-                e.hp/e.maxHp
+                enemy.hp/enemy.maxHp
             ),
             5
         );
 
-        /*
-          보스 이름
-        */
-
         if(base.boss){
 
-            ctx.fillStyle="#fff";
             ctx.font="bold 12px Arial";
             ctx.textAlign="center";
+            ctx.fillStyle="#fff";
 
             ctx.fillText(
                 "👑 "+base.name,
-                e.x,
-                e.y-base.size-18
+                enemy.x,
+                enemy.y-base.size-18
             );
         }
     }
@@ -2914,7 +3522,7 @@ function drawEnemies(){
 
 
 /* =========================================================
-   투사체 렌더링
+   투사체
 ========================================================= */
 
 function drawProjectiles(){
@@ -2922,9 +3530,9 @@ function drawProjectiles(){
     for(const p of projectiles){
 
         ctx.fillStyle=
-            p.type==="lightning"
-            ? "#fff04a"
-            : "#ffb52e";
+            p.type==="zeus"
+            ?"#ffe84d"
+            :"#ff9f2e";
 
         ctx.beginPath();
 
@@ -2942,7 +3550,7 @@ function drawProjectiles(){
 
 
 /* =========================================================
-   파티클 렌더링
+   파티클
 ========================================================= */
 
 function drawParticles(){
@@ -2975,92 +3583,1349 @@ function drawParticles(){
 
 
 /* =========================================================
+   장비 시스템
+========================================================= */
+
+function openEquipment(){
+
+    renderEquipment();
+
+    document
+        .getElementById("equipmentModal")
+        .classList.add("show");
+}
+
+
+function renderEquipment(){
+
+    renderEquipmentWeapons();
+    renderWeaponSkins();
+
+    renderEquipmentMounts();
+    renderMountSkins();
+}
+
+
+function equipmentTab(tab,button){
+
+    document
+        .querySelectorAll("#equipmentModal .tab")
+        .forEach(b=>b.classList.remove("active"));
+
+    button.classList.add("active");
+
+    document
+        .querySelectorAll("#equipmentModal .section")
+        .forEach(s=>s.classList.remove("active"));
+
+    document
+        .getElementById(
+            tab+"Section"
+        )
+        .classList.add("active");
+}
+
+
+/* =========================================================
+   무기 장비
+========================================================= */
+
+function renderEquipmentWeapons(){
+
+    const box=
+        document.getElementById(
+            "equipmentWeapons"
+        );
+
+    box.innerHTML="";
+
+    WEAPONS.forEach(w=>{
+
+        const owned=
+            player.inventory.weapons
+            .includes(w.id);
+
+        const equipped=
+            player.equipment.weapon===w.id;
+
+        const card=document.createElement("div");
+
+        card.className=
+            "card "+
+            (!owned?"locked":"");
+
+        card.innerHTML=`
+
+            <h3>
+                ${w.name}
+            </h3>
+
+            <div class="small">
+                공격력 ${w.damage}<br>
+                사거리 ${w.range}
+            </div>
+
+            ${
+                owned
+                ?`
+                    <button
+                        onclick="equipWeapon('${w.id}')">
+                        ${
+                            equipped
+                            ?"✅ 장착 중"
+                            :"장착"
+                        }
+                    </button>
+                `
+                :`
+                    <div>
+                        🔒 미보유
+                    </div>
+                `
+            }
+        `;
+
+        box.appendChild(card);
+    });
+}
+
+
+function equipWeapon(id){
+
+    if(
+        !player.inventory.weapons.includes(id)
+    ){
+
+        showMessage(
+            "먼저 무기를 구매하세요."
+        );
+
+        return;
+    }
+
+    player.equipment.weapon=id;
+
+    player.equipment.weaponSkin=null;
+
+    showMessage(
+        "⚔ "+WEAPONS.find(
+            w=>w.id===id
+        ).name+" 장착!"
+    );
+
+    renderEquipment();
+    updateUI();
+}
+
+
+/* =========================================================
+   무기 스킨
+========================================================= */
+
+function renderWeaponSkins(){
+
+    const box=
+        document.getElementById(
+            "weaponSkins"
+        );
+
+    box.innerHTML="";
+
+    const skins=[
+        {
+            id:"candy",
+            name:"🎄 크리스마스 캔디 지팡이",
+            weapon:"pipe",
+            limited:true
+        },
+
+        {
+            id:"sock",
+            name:"🧦 크리스마스 양말 발사기",
+            weapon:"rocket",
+            limited:true
+        }
+    ];
+
+    skins.forEach(s=>{
+
+        const owned=
+            player.inventory.weaponSkins
+            .includes(s.id);
+
+        const correctWeapon=
+            player.equipment.weapon===s.weapon;
+
+        const card=document.createElement("div");
+
+        card.className=
+            "card "+
+            (!owned?"locked":"");
+
+        card.innerHTML=`
+
+            <h3>${s.name}</h3>
+
+            <div class="small">
+                적용 무기:
+                ${WEAPONS.find(
+                    w=>w.id===s.weapon
+                ).name}
+            </div>
+
+            ${
+                owned
+                ?
+                `
+                <button
+                    ${correctWeapon?"":"disabled"}
+                    onclick="equipWeaponSkin('${s.id}')">
+
+                    ${
+                        player.equipment.weaponSkin===s.id
+                        ?"✅ 장착 중"
+                        :"장착"
+                    }
+
+                </button>
+                `
+                :
+                `
+                <div>🔒 미보유</div>
+                `
+            }
+
+        `;
+
+        box.appendChild(card);
+    });
+}
+
+
+function equipWeaponSkin(id){
+
+    if(
+        !player.inventory.weaponSkins
+        .includes(id)
+    )
+        return;
+
+    const skinWeapon=
+        id==="candy"
+        ?"pipe"
+        :"rocket";
+
+    if(
+        player.equipment.weapon!==skinWeapon
+    ){
+
+        showMessage(
+            "이 스킨의 무기를 먼저 장착하세요."
+        );
+
+        return;
+    }
+
+    player.equipment.weaponSkin=id;
+
+    showMessage(
+        "🎨 무기 스킨 장착!"
+    );
+
+    renderEquipment();
+}
+
+
+/* =========================================================
+   탈것 장비
+========================================================= */
+
+function renderEquipmentMounts(){
+
+    const box=
+        document.getElementById(
+            "equipmentMounts"
+        );
+
+    box.innerHTML="";
+
+    MOUNTS.forEach(m=>{
+
+        const owned=
+            player.inventory.mounts
+            .includes(m.id);
+
+        const equipped=
+            player.equipment.mount===m.id;
+
+        const card=document.createElement("div");
+
+        card.className=
+            "card "+
+            (!owned?"locked":"");
+
+        card.innerHTML=`
+
+            <h3>
+                ${mountIcon(m.id)}
+                ${m.name}
+            </h3>
+
+            <div class="small">
+                속도 ${m.speed}
+            </div>
+
+            ${
+                owned
+                ?
+                `
+                <button
+                    onclick="equipMount('${m.id}')">
+                    ${
+                        equipped
+                        ?"✅ 장착 중"
+                        :"장착"
+                    }
+                </button>
+                `
+                :
+                `
+                <div>🔒 미보유</div>
+                `
+            }
+        `;
+
+        box.appendChild(card);
+    });
+}
+
+
+function mountIcon(id){
+
+    if(id==="bike") return "🚲";
+    if(id==="car") return "🚗";
+    if(id==="plane") return "✈️";
+    return "🛩️";
+}
+
+
+function equipMount(id){
+
+    if(
+        !player.inventory.mounts
+        .includes(id)
+    ){
+
+        showMessage(
+            "먼저 탈것을 구매하세요."
+        );
+
+        return;
+    }
+
+    player.equipment.mount=id;
+    player.equipment.mountSkin=null;
+
+    showMessage(
+        mountIcon(id)+" "+
+        MOUNTS.find(
+            m=>m.id===id
+        ).name+
+        " 장착!"
+    );
+
+    renderEquipment();
+    updateUI();
+}
+
+
+/* =========================================================
+   탈것 스킨
+========================================================= */
+
+function renderMountSkins(){
+
+    const box=
+        document.getElementById(
+            "mountSkins"
+        );
+
+    box.innerHTML="";
+
+    const skins=[
+        {
+            id:"santaSleigh",
+            name:"🎅 산타썰매",
+            mount:"car",
+            limited:true
+        }
+    ];
+
+    skins.forEach(s=>{
+
+        const owned=
+            player.inventory.mountSkins
+            .includes(s.id);
+
+        const correctMount=
+            player.equipment.mount===s.mount;
+
+        const card=document.createElement("div");
+
+        card.className=
+            "card "+
+            (!owned?"locked":"");
+
+        card.innerHTML=`
+
+            <h3>${s.name}</h3>
+
+            <div class="small">
+                적용 탈것:
+                ${MOUNTS.find(
+                    m=>m.id===s.mount
+                ).name}
+            </div>
+
+            ${
+                owned
+                ?
+                `
+                <button
+                    ${correctMount?"":"disabled"}
+                    onclick="equipMountSkin('${s.id}')">
+
+                    ${
+                        player.equipment.mountSkin===s.id
+                        ?"✅ 장착 중"
+                        :"장착"
+                    }
+
+                </button>
+                `
+                :
+                `
+                <div>🔒 미보유</div>
+                `
+            }
+        `;
+
+        box.appendChild(card);
+    });
+}
+
+
+function equipMountSkin(id){
+
+    if(
+        !player.inventory.mountSkins
+        .includes(id)
+    )
+        return;
+
+    if(
+        player.equipment.mount!=="car"
+    ){
+
+        showMessage(
+            "먼저 자동차를 장착하세요."
+        );
+
+        return;
+    }
+
+    player.equipment.mountSkin=id;
+
+    showMessage(
+        "🎅 산타썰매 스킨 장착!"
+    );
+
+    renderEquipment();
+}
+
+
+/* =========================================================
+   캐릭터 장비
+========================================================= */
+
+function equipCharacter(slot,value){
+
+    player.equipment[slot]=value;
+
+    showMessage(
+        "👤 캐릭터 장비 변경!"
+    );
+
+    updateUI();
+}
+
+
+/* =========================================================
+   상점
+========================================================= */
+
+function openShop(){
+
+    renderShop();
+
+    document
+        .getElementById("shopModal")
+        .classList.add("show");
+}
+
+
+function renderShop(){
+
+    renderShopWeapons();
+    renderShopMounts();
+    renderShopItems();
+}
+
+
+function shopTab(tab,button){
+
+    document
+        .querySelectorAll("#shopModal .tab")
+        .forEach(b=>b.classList.remove("active"));
+
+    button.classList.add("active");
+
+    document
+        .querySelectorAll("#shopModal .section")
+        .forEach(s=>s.classList.remove("active"));
+
+    document
+        .getElementById(
+            "shop"+
+            tab.charAt(0).toUpperCase()+
+            tab.slice(1)
+        )
+        .classList.add("active");
+}
+
+
+/* =========================================================
+   무기 상점
+========================================================= */
+
+function renderShopWeapons(){
+
+    const box=
+        document.getElementById(
+            "shopWeapons"
+        );
+
+    box.innerHTML="";
+
+    WEAPONS.forEach((w,index)=>{
+
+        const owned=
+            player.inventory.weapons
+            .includes(w.id);
+
+        const previous=
+            index===0 ||
+            player.inventory.weapons
+            .includes(
+                WEAPONS[index-1].id
+            );
+
+        const card=document.createElement("div");
+
+        card.className="card";
+
+        card.innerHTML=`
+
+            <h3>
+                ${index+1}. ${w.name}
+            </h3>
+
+            <div class="small">
+                공격력 ${w.damage}<br>
+                사거리 ${w.range}<br>
+                가격 🪙 ${w.price}
+            </div>
+
+            ${
+                owned
+                ?
+                `<button disabled>
+                    보유
+                </button>`
+                :
+                previous
+                ?
+                `<button
+                    onclick="buyWeapon('${w.id}')">
+                    🪙 ${w.price} 구매
+                </button>`
+                :
+                `<button disabled>
+                    🔒 이전 무기 필요
+                </button>`
+            }
+
+        `;
+
+        box.appendChild(card);
+    });
+}
+
+
+function buyWeapon(id){
+
+    const weapon=
+        WEAPONS.find(
+            w=>w.id===id
+        );
+
+    if(
+        player.inventory.weapons
+        .includes(id)
+    ){
+
+        showMessage(
+            "이미 보유한 무기입니다."
+        );
+
+        return;
+    }
+
+    const index=
+        WEAPONS.findIndex(
+            w=>w.id===id
+        );
+
+    if(index>0){
+
+        const previous=
+            WEAPONS[index-1].id;
+
+        if(
+            !player.inventory.weapons
+            .includes(previous)
+        ){
+
+            showMessage(
+                "이전 무기를 먼저 구매하세요."
+            );
+
+            return;
+        }
+    }
+
+    if(player.coins<weapon.price){
+
+        showMessage(
+            "코인이 부족합니다."
+        );
+
+        return;
+    }
+
+    player.coins-=weapon.price;
+
+    player.inventory.weapons.push(id);
+
+    showMessage(
+        "🔓 "+weapon.name+
+        " 구매 완료!"
+    );
+
+    renderShop();
+    updateUI();
+}
+
+
+/* =========================================================
+   탈것 상점
+========================================================= */
+
+function renderShopMounts(){
+
+    const box=
+        document.getElementById(
+            "shopMounts"
+        );
+
+    box.innerHTML="";
+
+    MOUNTS.forEach(m=>{
+
+        const owned=
+            player.inventory.mounts
+            .includes(m.id);
+
+        const card=document.createElement("div");
+
+        card.className="card";
+
+        card.innerHTML=`
+
+            <h3>
+                ${mountIcon(m.id)}
+                ${m.name}
+            </h3>
+
+            <div class="small">
+                속도 ${m.speed}<br>
+                가격 🪙 ${m.price}
+            </div>
+
+            ${
+                owned
+                ?
+                `<button disabled>
+                    보유
+                </button>`
+                :
+                `<button
+                    onclick="buyMount('${m.id}')">
+                    🪙 ${m.price} 구매
+                </button>`
+            }
+
+        `;
+
+        box.appendChild(card);
+    });
+}
+
+
+function buyMount(id){
+
+    const mount=
+        MOUNTS.find(
+            m=>m.id===id
+        );
+
+    if(
+        player.inventory.mounts
+        .includes(id)
+    )
+        return;
+
+    if(player.coins<mount.price){
+
+        showMessage(
+            "코인이 부족합니다."
+        );
+
+        return;
+    }
+
+    player.coins-=mount.price;
+
+    player.inventory.mounts.push(id);
+
+    showMessage(
+        mountIcon(id)+
+        " "+mount.name+
+        " 구매!"
+    );
+
+    renderShop();
+    updateUI();
+}
+
+
+/* =========================================================
+   꾸미기 상점
+========================================================= */
+
+function renderShopItems(){
+
+    const box=
+        document.getElementById(
+            "shopItems"
+        );
+
+    box.innerHTML="";
+
+    const items=[
+
+        {
+            id:"hat",
+            name:"🎩 멋진 모자",
+            price:500
+        },
+
+        {
+            id:"crown",
+            name:"👑 왕관",
+            price:5000
+        },
+
+        {
+            id:"starAccessory",
+            name:"⭐ 별 액세서리",
+            price:1000
+        }
+
+    ];
+
+    items.forEach(item=>{
+
+        const owned=
+            player.inventory.characterItems
+            .includes(item.id);
+
+        const card=document.createElement("div");
+
+        card.className="card";
+
+        card.innerHTML=`
+
+            <h3>${item.name}</h3>
+
+            <div>
+                🪙 ${item.price}
+            </div>
+
+            ${
+                owned
+                ?
+                `<button disabled>
+                    보유
+                </button>`
+                :
+                `<button
+                    onclick="buyCharacterItem('${item.id}',${item.price})">
+                    구매
+                </button>`
+            }
+
+        `;
+
+        box.appendChild(card);
+    });
+}
+
+
+function buyCharacterItem(id,price){
+
+    if(
+        player.inventory.characterItems
+        .includes(id)
+    )
+        return;
+
+    if(player.coins<price){
+
+        showMessage(
+            "코인이 부족합니다."
+        );
+
+        return;
+    }
+
+    player.coins-=price;
+
+    player.inventory.characterItems
+        .push(id);
+
+    showMessage(
+        "🎨 꾸미기 아이템 획득!"
+    );
+
+    renderShop();
+    updateUI();
+}
+
+
+/* =========================================================
+   일일 상점
+========================================================= */
+
+const DAILY_POOL=[
+
+    {
+        id:"halloweenHat",
+        name:"🎃 할로윈 모자",
+        price:5,
+        currency:"stars",
+        event:"halloween",
+        type:"character"
+    },
+
+    {
+        id:"ghostSkin",
+        name:"👻 유령 스킨",
+        price:8,
+        currency:"stars",
+        event:"halloween",
+        type:"character"
+    },
+
+    {
+        id:"christmasHat",
+        name:"🎅 산타 모자",
+        price:5,
+        currency:"stars",
+        event:"christmas",
+        type:"character"
+    },
+
+    {
+        id:"candyCane",
+        name:"🎄 캔디 지팡이",
+        price:10,
+        currency:"stars",
+        event:"christmas",
+        type:"weaponSkin",
+        skin:"candy"
+    },
+
+    {
+        id:"christmasSock",
+        name:"🧦 크리스마스 양말",
+        price:10,
+        currency:"stars",
+        event:"christmas",
+        type:"weaponSkin",
+        skin:"sock"
+    },
+
+    {
+        id:"santaSleigh",
+        name:"🎅 산타썰매",
+        price:15,
+        currency:"stars",
+        event:"christmas",
+        type:"mountSkin",
+        skin:"santaSleigh"
+    },
+
+    {
+        id:"goldSkin",
+        name:"✨ 황금 캐릭터 스킨",
+        price:12,
+        currency:"stars",
+        type:"character"
+    },
+
+    {
+        id:"rainbowSkin",
+        name:"🌈 레인보우 스킨",
+        price:15,
+        currency:"stars",
+        type:"character"
+    },
+
+    {
+        id:"crystalSkin",
+        name:"💎 크리스탈 스킨",
+        price:18,
+        currency:"stars",
+        type:"character"
+    }
+
+];
+
+
+let dailyItems=[];
+
+function generateDailyShop(){
+
+    const event=getEvent();
+
+    const available=
+        DAILY_POOL.filter(item=>{
+
+            if(!item.event)
+                return true;
+
+            return item.event===event;
+        });
+
+    dailyItems=[];
+
+    while(
+        dailyItems.length<5 &&
+        available.length
+    ){
+
+        const item=
+            available[
+                Math.floor(
+                    Math.random()*
+                    available.length
+                )
+            ];
+
+        if(
+            !dailyItems
+            .some(x=>x.id===item.id)
+        ){
+
+            dailyItems.push(item);
+        }
+    }
+
+    /*
+      항상 5개가 되도록
+      일반 상품으로 채움
+    */
+
+    while(
+        dailyItems.length<5
+    ){
+
+        const normal=
+            DAILY_POOL.filter(
+                x=>!x.event
+            );
+
+        const item=
+            normal[
+                Math.floor(
+                    Math.random()*
+                    normal.length
+                )
+            ];
+
+        if(
+            !dailyItems
+            .some(x=>x.id===item.id)
+        ){
+
+            dailyItems.push(item);
+        }
+    }
+}
+
+
+function openDailyShop(){
+
+    generateDailyShop();
+
+    const box=
+        document.getElementById(
+            "dailyItems"
+        );
+
+    box.innerHTML="";
+
+    dailyItems.forEach(
+        (item,index)=>{
+
+            const card=
+                document.createElement("div");
+
+            card.className="card";
+
+            card.innerHTML=`
+
+                <h3>
+                    ${item.name}
+                </h3>
+
+                ${
+                    item.event
+                    ?
+                    `<div class="gold">
+                        ⭐ 기간 한정
+                    </div>`
+                    :
+                    `<div class="small">
+                        기본 상품
+                    </div>`
+                }
+
+                <div>
+                    ⭐ ${item.price}
+                </div>
+
+                <button
+                    onclick="buyDaily(${index})">
+                    구매
+                </button>
+
+            `;
+
+            box.appendChild(card);
+        }
+    );
+
+    document
+        .getElementById("dailyModal")
+        .classList.add("show");
+}
+
+
+function buyDaily(index){
+
+    const item=dailyItems[index];
+
+    if(!item)
+        return;
+
+    if(player.stars<item.price){
+
+        showMessage(
+            "⭐ 스타가 부족합니다."
+        );
+
+        return;
+    }
+
+    player.stars-=item.price;
+
+    if(item.type==="weaponSkin"){
+
+        if(
+            !player.inventory.weaponSkins
+            .includes(item.skin)
+        ){
+
+            player.inventory.weaponSkins
+                .push(item.skin);
+        }
+    }
+
+    if(item.type==="mountSkin"){
+
+        if(
+            !player.inventory.mountSkins
+            .includes(item.skin)
+        ){
+
+            player.inventory.mountSkins
+                .push(item.skin);
+        }
+    }
+
+    if(item.type==="character"){
+
+        if(
+            !player.inventory.characterItems
+            .includes(item.id)
+        ){
+
+            player.inventory.characterItems
+                .push(item.id);
+        }
+    }
+
+    showMessage(
+        "⭐ "+item.name+
+        " 획득!"
+    );
+
+    openDailyShop();
+
+    updateUI();
+}
+
+
+/* =========================================================
+   무기 강화
+========================================================= */
+
+function upgradeWeapon(){
+
+    const cost=
+        100+
+        player.weaponUpgrade*
+        100;
+
+    if(player.coins<cost){
+
+        showMessage(
+            "🪙 코인이 부족합니다."
+        );
+
+        return;
+    }
+
+    player.coins-=cost;
+
+    player.weaponUpgrade++;
+
+    showMessage(
+        "⚔ 무기 강화 +"+
+        player.weaponUpgrade
+    );
+
+    updateUI();
+}
+
+
+/* =========================================================
    UI
 ========================================================= */
 
 function updateUI(){
 
-    document.getElementById("levelText")
+    const weapon=currentWeapon();
+
+    document.getElementById("gender")
+        .textContent=
+        player.gender==="boy"
+        ?"남자아이"
+        :
+        player.gender==="girl"
+        ?"여자아이"
+        :
+        "캐릭터";
+
+    document.getElementById("level")
         .textContent=player.level;
 
-    document.getElementById("coinText")
-        .textContent=player.coins;
+    document.getElementById("xpText")
+        .textContent=
+        player.level>=2000
+        ?"MAX"
+        :
+        `${Math.floor(player.xp)} / ${neededXP()}`;
 
-    document.getElementById("lpText")
-        .textContent=player.lp;
-
-    document.getElementById("starText")
-        .textContent=player.stars;
+    document.getElementById("xpBar")
+        .style.width=
+        player.level>=2000
+        ?"100%"
+        :
+        Math.min(
+            100,
+            player.xp/
+            neededXP()*
+            100
+        )+"%";
 
     document.getElementById("hpText")
         .textContent=
-        `${Math.max(0,Math.floor(player.hp))} / ${player.maxHp}`;
+        `${Math.max(
+            0,
+            Math.floor(player.hp)
+        )} / ${player.maxHp}`;
 
-    document.getElementById("hpFill")
+    document.getElementById("hpBar")
         .style.width=
         Math.max(
             0,
             player.hp/player.maxHp*100
         )+"%";
 
-    document.getElementById("xpFill")
-        .style.width=
-        (
-            player.level>=2000
-            ?100
-            :player.xp/xpNeeded()*100
-        )+"%";
+    document.getElementById("coins")
+        .textContent=player.coins;
 
-    document.getElementById("weaponText")
-        .textContent=getWeapon().name+
-        ` +${player.weaponUpgrade}`;
+    document.getElementById("lp")
+        .textContent=player.lp;
 
-    document.getElementById("weaponInfo")
-        .innerHTML=`
-            공격력: ${Math.floor(getDamage())}<br>
-            사거리: ${getWeapon().range}<br>
-            타입: ${getWeapon().type}
+    document.getElementById("stars")
+        .textContent=player.stars;
+
+    document.getElementById("region")
+        .textContent=
+        getRegion(
+            player.x,
+            player.y
+        ).name;
+
+    document.getElementById("weaponName")
+        .textContent=
+        weapon.name+
+        " +"+player.weaponUpgrade;
+
+    document.getElementById("weaponStats")
+        .innerHTML=
+        `
+        공격력: ${weaponDamage()}<br>
+        사거리: ${weapon.range}<br>
+        공격각: ${weapon.projectile?"원거리":"120° 부채꼴"}
         `;
 
-    document.getElementById("mountText")
+    const mount=
+        player.equipment.mount
+        ?
+        MOUNTS.find(
+            m=>m.id===player.equipment.mount
+        )
+        :
+        null;
+
+    document.getElementById("mountName")
         .textContent=
-        player.mount
-        ? mounts[player.mount].name
-        :"없음";
-
-    document.getElementById("genderText")
-        .textContent=
-        player.gender==="boy"
-        ?"남자아이"
-        :player.gender==="girl"
-        ?"여자아이"
-        :"캐릭터";
-
-    const r=getRegion(
-        player.x,
-        player.y
-    );
-
-    document.getElementById("regionText")
-        .textContent=r.name;
+        mount
+        ?
+        mount.name+
+        (
+            player.equipment.mountSkin
+            ?" / 🎨 스킨"
+            :""
+        )
+        :
+        "없음";
 }
 
 
 /* =========================================================
-   메시지
+   저장
 ========================================================= */
 
-let messageTimer=0;
+function saveGame(){
 
-function showMessage(text){
+    localStorage.setItem(
+        "DungeonWorldSave",
+        JSON.stringify(player)
+    );
 
-    const el=document.getElementById("message");
+    showMessage(
+        "💾 저장 완료!"
+    );
+}
 
-    el.textContent=text;
 
-    el.classList.add("show");
+function loadGame(){
 
-    messageTimer=2;
+    const saved=
+        localStorage.getItem(
+            "DungeonWorldSave"
+        );
+
+    if(!saved)
+        return;
+
+    try{
+
+        const data=JSON.parse(saved);
+
+        Object.assign(
+            player,
+            data
+        );
+
+        /*
+          이전 버전 세이브 호환
+        */
+
+        if(!player.inventory)
+            player.inventory={
+                weapons:["stick"],
+                weaponSkins:[],
+                mounts:[],
+                mountSkins:[],
+                characterItems:[]
+            };
+
+        if(!player.equipment)
+            player.equipment={
+                weapon:"stick",
+                weaponSkin:null,
+                mount:null,
+                mountSkin:null,
+                hair:"none",
+                hat:"none",
+                clothes:"blue",
+                accessory:"none"
+            };
+
+    }catch(e){
+
+        console.error(
+            "세이브 불러오기 실패",
+            e
+        );
+    }
 }
 
 
@@ -3070,8 +4935,44 @@ function showMessage(text){
 
 function closeModal(id){
 
-    document.getElementById(id)
+    document
+        .getElementById(id)
         .classList.remove("show");
+}
+
+
+/* =========================================================
+   성별
+========================================================= */
+
+function selectGender(g){
+
+    player.gender=g;
+
+    closeModal("genderModal");
+
+    saveGame();
+
+    updateUI();
+}
+
+
+/* =========================================================
+   메시지
+========================================================= */
+
+function showMessage(text){
+
+    const el=
+        document.getElementById(
+            "message"
+        );
+
+    el.textContent=text;
+
+    el.classList.add("show");
+
+    messageTimer=2;
 }
 
 
@@ -3093,34 +4994,38 @@ function loop(now){
 
     updatePlayer(dt);
 
-    for(const e of enemies)
-        updateEnemy(e,dt);
+    enemies.forEach(
+        e=>updateEnemy(e,dt)
+    );
 
     updateProjectiles(dt);
+
     updateParticles(dt);
 
     /*
-      몬스터 수 제한
+      적 생성
     */
 
-    if(enemies.length<18){
-        if(Math.random()<dt*.8)
-            randomSpawn();
+    if(
+        enemies.length<20 &&
+        Math.random()<dt*.75
+    ){
+
+        spawnRandomEnemy();
     }
 
     /*
-      오래된 몬스터를 너무 많이 멀리 보내지 않음
+      너무 멀어진 몬스터 제거
     */
 
-    enemies=enemies.filter(e=>{
+    enemies=
+        enemies.filter(e=>{
 
-        const d=Math.hypot(
-            e.x-player.x,
-            e.y-player.y
-        );
-
-        return d<2500;
-    });
+            return Math.hypot(
+                e.x-player.x,
+                e.y-player.y
+            )<2800;
+        });
 
     if(messageTimer>0){
 
@@ -3129,13 +5034,18 @@ function loop(now){
         if(messageTimer<=0){
 
             document
-                .getElementById("message")
-                .classList.remove("show");
+                .getElementById(
+                    "message"
+                )
+                .classList.remove(
+                    "show"
+                );
         }
     }
 
-    updateUI();
     draw();
+
+    updateUI();
 
     requestAnimationFrame(loop);
 }
@@ -3149,14 +5059,14 @@ loadGame();
 
 if(!player.gender){
 
-    document.getElementById("genderModal")
+    document
+        .getElementById(
+            "genderModal"
+        )
         .classList.add("show");
 }
 
 updateUI();
-
-aim.x=player.x+100;
-aim.y=player.y;
 
 requestAnimationFrame(loop);
 
@@ -3165,9 +5075,10 @@ requestAnimationFrame(loop);
    자동 저장
 ========================================================= */
 
-setInterval(()=>{
-    saveGame();
-},30000);
+setInterval(
+    saveGame,
+    30000
+);
 
 </script>
 
