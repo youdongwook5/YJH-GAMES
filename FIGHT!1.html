@@ -1,0 +1,2837 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Dungeon Seasons</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+}
+
+body {
+    margin: 0;
+    background: #080b12;
+    color: white;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+}
+
+button {
+    border: 0;
+    color: white;
+    background: #202938;
+    border-radius: 10px;
+    padding: 10px 15px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #334057;
+}
+
+#game {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #111722;
+}
+
+#hud {
+    position: fixed;
+    left: 10px;
+    top: 10px;
+    z-index: 20;
+    min-width: 260px;
+    pointer-events: none;
+}
+
+.hudBox {
+    background: rgba(5,8,14,.88);
+    border: 1px solid #364153;
+    border-radius: 12px;
+    padding: 10px;
+    margin-bottom: 7px;
+    box-shadow: 0 5px 20px rgba(0,0,0,.3);
+}
+
+.bar {
+    width: 230px;
+    height: 12px;
+    background: #242b38;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-top: 4px;
+}
+
+.bar > div {
+    height: 100%;
+    transition: width .15s;
+}
+
+#hpFill {
+    background: linear-gradient(90deg,#e52d27,#ff695e);
+}
+
+#xpFill {
+    background: linear-gradient(90deg,#2684ff,#7cb7ff);
+}
+
+#menus {
+    position: fixed;
+    right: 10px;
+    top: 10px;
+    z-index: 30;
+    display: flex;
+    gap: 6px;
+}
+
+#eventBadge {
+    position: fixed;
+    top: 70px;
+    right: 10px;
+    z-index: 20;
+    background: rgba(80,20,100,.9);
+    border: 1px solid #c56cff;
+    border-radius: 10px;
+    padding: 8px 12px;
+}
+
+#message {
+    position: fixed;
+    left: 50%;
+    top: 18%;
+    transform: translateX(-50%);
+    z-index: 50;
+    background: rgba(0,0,0,.8);
+    padding: 12px 20px;
+    border-radius: 12px;
+    opacity: 0;
+    transition: opacity .2s;
+    pointer-events: none;
+}
+
+#panel {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%,-50%);
+    z-index: 40;
+    width: min(900px,94vw);
+    max-height: 85vh;
+    overflow-y: auto;
+    background: rgba(12,17,27,.98);
+    border: 1px solid #435069;
+    border-radius: 18px;
+    padding: 20px;
+    display: none;
+}
+
+#panel h2 {
+    margin-top: 0;
+}
+
+.close {
+    float: right;
+    background: #8f2631;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(180px,1fr));
+    gap: 10px;
+}
+
+.card {
+    background: #182131;
+    border: 1px solid #303c50;
+    border-radius: 12px;
+    padding: 12px;
+}
+
+.card h3 {
+    margin: 0 0 8px;
+}
+
+.card p {
+    color: #b7c1d2;
+    font-size: 13px;
+}
+
+.locked {
+    opacity: .45;
+}
+
+.equipped {
+    border-color: #5ee77c;
+    box-shadow: 0 0 10px rgba(94,231,124,.15);
+}
+
+.price {
+    color: #ffd84a;
+}
+
+.star {
+    color: #ffe44e;
+}
+
+.coin {
+    color: #f6b83c;
+}
+
+.lp {
+    color: #69b7ff;
+}
+
+#mobileControls {
+    position: fixed;
+    inset: 0;
+    z-index: 25;
+    pointer-events: none;
+}
+
+#joystick {
+    position: absolute;
+    left: 25px;
+    bottom: 25px;
+    width: 135px;
+    height: 135px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.09);
+    border: 2px solid rgba(255,255,255,.18);
+    pointer-events: auto;
+}
+
+#stick {
+    position: absolute;
+    left: 40px;
+    top: 40px;
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.28);
+}
+
+#attackButton {
+    position: absolute;
+    right: 30px;
+    bottom: 45px;
+    width: 95px;
+    height: 95px;
+    border-radius: 50%;
+    background: rgba(220,50,50,.65);
+    border: 3px solid rgba(255,255,255,.35);
+    font-size: 17px;
+    pointer-events: auto;
+}
+
+#dashButton {
+    position: absolute;
+    right: 140px;
+    bottom: 30px;
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    background: rgba(50,130,240,.65);
+    pointer-events: auto;
+}
+
+@media (min-width: 800px) {
+    #mobileControls {
+        display: none;
+    }
+}
+
+@media (max-width: 799px) {
+    #hud {
+        transform: scale(.85);
+        transform-origin: top left;
+    }
+
+    #menus {
+        flex-wrap: wrap;
+        width: 180px;
+        justify-content: flex-end;
+    }
+
+    #menus button {
+        padding: 7px 9px;
+        font-size: 11px;
+    }
+
+    #eventBadge {
+        top: 105px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="game"></canvas>
+
+<div id="hud">
+    <div class="hudBox">
+        <b id="levelText">Lv. 1</b>
+        <div>HP: <span id="hpText">100 / 100</span></div>
+        <div class="bar"><div id="hpFill"></div></div>
+
+        <div style="margin-top:5px">
+            XP:
+            <span id="xpText">0 / 5</span>
+        </div>
+        <div class="bar"><div id="xpFill"></div></div>
+
+        <div style="margin-top:7px">
+            🪙 <span class="coin" id="coinText">0</span>
+            &nbsp;
+            🔵 <span class="lp" id="lpText">0</span>
+            &nbsp;
+            ⭐ <span class="star" id="starText">0</span>
+        </div>
+    </div>
+
+    <div class="hudBox">
+        ⚔️ <span id="weaponText">나무 막대기</span><br>
+        🚲 <span id="vehicleText">자전거</span>
+    </div>
+</div>
+
+<div id="menus">
+    <button onclick="openPanel('shop')">🛒 상점</button>
+    <button onclick="openPanel('inventory')">🎒 장비</button>
+    <button onclick="openPanel('character')">👤 꾸미기</button>
+    <button onclick="openPanel('info')">ℹ️ 정보</button>
+</div>
+
+<div id="eventBadge">🎮 기본 시즌</div>
+<div id="message"></div>
+
+<div id="panel"></div>
+
+<div id="mobileControls">
+    <div id="joystick">
+        <div id="stick"></div>
+    </div>
+
+    <button id="dashButton">대시</button>
+    <button id="attackButton">공격</button>
+</div>
+
+<script>
+/* =========================================================
+   GAME DATA
+========================================================= */
+
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+let W = innerWidth;
+let H = innerHeight;
+
+function resize() {
+    W = canvas.width = innerWidth;
+    H = canvas.height = innerHeight;
+}
+addEventListener("resize", resize);
+resize();
+
+/* =========================================================
+   EVENT SYSTEM
+========================================================= */
+
+const EVENT_MODE = "christmas";
+// "normal", "halloween", "christmas"
+
+const EVENTS = {
+    normal: {
+        name: "🎮 기본 시즌",
+        color: "#7da7ff"
+    },
+
+    halloween: {
+        name: "🎃 할로윈 이벤트",
+        color: "#ff7b21"
+    },
+
+    christmas: {
+        name: "🎄 크리스마스 이벤트",
+        color: "#5eeaff"
+    }
+};
+
+document.getElementById("eventBadge").textContent =
+    EVENTS[EVENT_MODE].name;
+
+/* =========================================================
+   WEAPONS
+========================================================= */
+
+const WEAPONS = [
+    {
+        id:"stick",
+        name:"나무 막대기",
+        damage:10,
+        speed:550,
+        cost:0
+    },
+    {
+        id:"stone",
+        name:"돌",
+        damage:16,
+        speed:600,
+        cost:100
+    },
+    {
+        id:"axe",
+        name:"도끼",
+        damage:25,
+        speed:650,
+        cost:300
+    },
+    {
+        id:"stoneKnife",
+        name:"돌칼",
+        damage:35,
+        speed:700,
+        cost:700
+    },
+    {
+        id:"pipe",
+        name:"쇠파이프",
+        damage:48,
+        speed:600,
+        cost:1500,
+        skin:{
+            name:"🍭 크리스마스 캔디 지팡이",
+            event:"christmas"
+        }
+    },
+    {
+        id:"ironKnife",
+        name:"쇠칼",
+        damage:65,
+        speed:750,
+        cost:3000
+    },
+    {
+        id:"medievalSword",
+        name:"중세시대 검",
+        damage:90,
+        speed:800,
+        cost:7000
+    },
+    {
+        id:"goldSword",
+        name:"금칼",
+        damage:130,
+        speed:850,
+        cost:15000
+    },
+    {
+        id:"diamondSword",
+        name:"다이아몬드 검",
+        damage:200,
+        speed:900,
+        cost:30000
+    },
+    {
+        id:"amethystSword",
+        name:"자수정 검",
+        damage:300,
+        speed:950,
+        cost:60000
+    },
+    {
+        id:"rocket",
+        name:"로켓 발사기",
+        damage:500,
+        speed:1100,
+        cost:120000,
+        ranged:true,
+        skin:{
+            name:"🧦 크리스마스 양말 발사기",
+            event:"christmas"
+        }
+    },
+    {
+        id:"crystalSpear",
+        name:"크리스탈 창",
+        damage:800,
+        speed:1000,
+        cost:250000,
+        ranged:true
+    },
+    {
+        id:"poseidon",
+        name:"포세이돈의 삼지창",
+        damage:1300,
+        speed:1050,
+        cost:600000,
+        ranged:true
+    },
+    {
+        id:"zeus",
+        name:"제우스의 번개",
+        damage:2500,
+        speed:1200,
+        cost:1500000,
+        ranged:true
+    },
+    {
+        id:"pen",
+        name:"만년필",
+        damage:5000,
+        speed:1000,
+        cost:5000000,
+        ranged:true
+    }
+];
+
+/* =========================================================
+   VEHICLES
+========================================================= */
+
+const VEHICLES = [
+    {
+        id:"bike",
+        name:"자전거",
+        speed:1.0,
+        cost:0
+    },
+    {
+        id:"car",
+        name:"자동차",
+        speed:1.35,
+        cost:5000,
+        skin:{
+            name:"🛷 산타 썰매",
+            event:"christmas"
+        }
+    },
+    {
+        id:"plane",
+        name:"비행기",
+        speed:1.75,
+        cost:30000
+    },
+    {
+        id:"fighter",
+        name:"전투기",
+        speed:2.25,
+        cost:100000
+    }
+];
+
+/* =========================================================
+   MONSTERS
+========================================================= */
+
+const MONSTERS = [
+    {
+        id:"slime",
+        name:"슬라임",
+        hp:35,
+        damage:5,
+        speed:55,
+        xp:5,
+        coin:5,
+        color:"#4bd66f"
+    },
+    {
+        id:"goblin",
+        name:"고블린",
+        hp:70,
+        damage:10,
+        speed:75,
+        xp:9,
+        coin:10,
+        color:"#8ed15a"
+    },
+    {
+        id:"oni",
+        name:"오니",
+        hp:150,
+        damage:18,
+        speed:50,
+        xp:18,
+        coin:20,
+        color:"#d94a4a"
+    },
+    {
+        id:"royalSlime",
+        name:"슬라임 왕족",
+        hp:400,
+        damage:30,
+        speed:45,
+        xp:40,
+        coin:50,
+        color:"#c85cff",
+        elite:true
+    },
+    {
+        id:"demonSoldier",
+        name:"데몬 병사",
+        hp:650,
+        damage:45,
+        speed:65,
+        xp:65,
+        coin:80,
+        color:"#8c2f45",
+        elite:true
+    },
+    {
+        id:"demonSergeant",
+        name:"데몬 병장",
+        hp:1200,
+        damage:70,
+        speed:55,
+        xp:110,
+        coin:150,
+        color:"#e34242",
+        elite:true
+    },
+    {
+        id:"strongDemon",
+        name:"최강 악마",
+        hp:3000,
+        damage:120,
+        speed:70,
+        xp:250,
+        coin:400,
+        color:"#6e1d91",
+        boss:true
+    },
+    {
+        id:"phoenix",
+        name:"피닉스",
+        hp:5000,
+        damage:150,
+        speed:90,
+        xp:400,
+        coin:600,
+        color:"#ff7a22",
+        boss:true
+    },
+    {
+        id:"witch",
+        name:"마녀",
+        hp:7000,
+        damage:180,
+        speed:45,
+        xp:600,
+        coin:1000,
+        color:"#a05be8",
+        boss:true
+    }
+];
+
+/* =========================================================
+   CHARACTER ITEMS
+========================================================= */
+
+const COSMETICS = [
+    {id:"default",name:"기본 스킨",cost:0,type:"skin"},
+    {id:"pumpkin",name:"🎃 호박 머리",cost:30,type:"head",event:"halloween"},
+    {id:"witchHat",name:"🧙 마녀 모자",cost:60,type:"head",event:"halloween"},
+    {id:"santaHat",name:"🎅 산타 모자",cost:50,type:"head",event:"christmas"},
+    {id:"reindeer",name:"🦌 루돌프 뿔",cost:80,type:"head",event:"christmas"},
+    {id:"ghostCape",name:"👻 유령 망토",cost:100,type:"back",event:"halloween"},
+    {id:"christmasCape",name:"🎄 크리스마스 망토",cost:100,type:"back",event:"christmas"}
+];
+
+/* =========================================================
+   PLAYER SAVE DATA
+========================================================= */
+
+const defaultSave = {
+    level:1,
+    xp:0,
+    lp:0,
+    coin:0,
+    star:100,
+
+    weapon:"stick",
+    weaponLevels:{stick:1},
+
+    vehicle:"bike",
+    vehicleOwned:["bike"],
+
+    weaponsOwned:["stick"],
+
+    cosmeticsOwned:["default"],
+    equippedCosmetics:{
+        skin:"default",
+        head:null,
+        back:null
+    },
+
+    dailySeed:0
+};
+
+let save = JSON.parse(
+    localStorage.getItem("dungeonSeasonsSave") ||
+    JSON.stringify(defaultSave)
+);
+
+function saveGame() {
+    localStorage.setItem(
+        "dungeonSeasonsSave",
+        JSON.stringify(save)
+    );
+}
+
+/* =========================================================
+   LEVEL SYSTEM
+========================================================= */
+
+function xpRequired(level) {
+    return level * 5;
+}
+
+function addXP(amount) {
+
+    save.xp += amount;
+
+    while (
+        save.level < 2000 &&
+        save.xp >= xpRequired(save.level)
+    ) {
+
+        save.xp -= xpRequired(save.level);
+
+        save.level++;
+
+        save.lp++;
+
+        showMessage(
+            `🎉 레벨 업! Lv.${save.level} / LP +1`
+        );
+    }
+
+    saveGame();
+}
+
+function addCoin(amount) {
+    save.coin += Math.floor(amount);
+    saveGame();
+}
+
+function addStar(amount) {
+    save.star += Math.floor(amount);
+    saveGame();
+}
+
+/* =========================================================
+   GAME STATE
+========================================================= */
+
+const player = {
+    x:0,
+    y:0,
+    radius:18,
+
+    hp:100,
+    maxHp:100,
+
+    attackCooldown:0,
+
+    invincible:0,
+    dashCooldown:0
+};
+
+let enemies = [];
+let projectiles = [];
+let particles = [];
+
+let dungeon = {
+    width:4000,
+    height:4000
+};
+
+let camera = {
+    x:0,
+    y:0
+};
+
+let keys = {};
+let mouse = {
+    x:W/2,
+    y:H/2,
+    down:false
+};
+
+let mobileInput = {
+    x:0,
+    y:0
+};
+
+/* =========================================================
+   INPUT
+========================================================= */
+
+addEventListener("keydown", e => {
+    keys[e.key.toLowerCase()] = true;
+
+    if(e.key === " ") {
+        dash();
+    }
+});
+
+addEventListener("keyup", e => {
+    keys[e.key.toLowerCase()] = false;
+});
+
+canvas.addEventListener("mousemove", e => {
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+});
+
+canvas.addEventListener("mousedown", () => {
+    mouse.down = true;
+});
+
+addEventListener("mouseup", () => {
+    mouse.down = false;
+});
+
+/* =========================================================
+   MOBILE JOYSTICK
+========================================================= */
+
+const joystick = document.getElementById("joystick");
+const stick = document.getElementById("stick");
+
+let joyActive = false;
+
+function joystickMove(clientX,clientY) {
+
+    const r = joystick.getBoundingClientRect();
+
+    const cx = r.left + r.width/2;
+    const cy = r.top + r.height/2;
+
+    let dx = clientX - cx;
+    let dy = clientY - cy;
+
+    const max = 45;
+    const len = Math.hypot(dx,dy);
+
+    if(len > max) {
+        dx = dx / len * max;
+        dy = dy / len * max;
+    }
+
+    stick.style.left = (40 + dx) + "px";
+    stick.style.top = (40 + dy) + "px";
+
+    mobileInput.x = dx / max;
+    mobileInput.y = dy / max;
+}
+
+function joystickReset() {
+
+    mobileInput.x = 0;
+    mobileInput.y = 0;
+
+    stick.style.left = "40px";
+    stick.style.top = "40px";
+}
+
+joystick.addEventListener("pointerdown", e => {
+    joyActive = true;
+    joystickMove(e.clientX,e.clientY);
+});
+
+addEventListener("pointermove", e => {
+    if(joyActive) {
+        joystickMove(e.clientX,e.clientY);
+    }
+});
+
+addEventListener("pointerup", () => {
+    if(joyActive) {
+        joyActive = false;
+        joystickReset();
+    }
+});
+
+document.getElementById("attackButton")
+    .addEventListener("pointerdown", () => {
+        attack();
+    });
+
+document.getElementById("dashButton")
+    .addEventListener("pointerdown", () => {
+        dash();
+    });
+
+/* =========================================================
+   PLAYER MOVEMENT
+========================================================= */
+
+function getMovement() {
+
+    let x = 0;
+    let y = 0;
+
+    if(keys["w"] || keys["arrowup"]) y -= 1;
+    if(keys["s"] || keys["arrowdown"]) y += 1;
+    if(keys["a"] || keys["arrowleft"]) x -= 1;
+    if(keys["d"] || keys["arrowright"]) x += 1;
+
+    x += mobileInput.x;
+    y += mobileInput.y;
+
+    const len = Math.hypot(x,y);
+
+    if(len > 1) {
+        x /= len;
+        y /= len;
+    }
+
+    return {x,y};
+}
+
+function playerSpeed() {
+
+    const vehicle =
+        VEHICLES.find(v => v.id === save.vehicle);
+
+    return 190 * (vehicle ? vehicle.speed : 1);
+}
+
+function updatePlayer(dt) {
+
+    const move = getMovement();
+
+    player.x += move.x * playerSpeed() * dt;
+    player.y += move.y * playerSpeed() * dt;
+
+    player.x = Math.max(
+        50,
+        Math.min(dungeon.width-50,player.x)
+    );
+
+    player.y = Math.max(
+        50,
+        Math.min(dungeon.height-50,player.y)
+    );
+
+    if(player.invincible > 0)
+        player.invincible -= dt;
+
+    if(player.attackCooldown > 0)
+        player.attackCooldown -= dt;
+
+    if(player.dashCooldown > 0)
+        player.dashCooldown -= dt;
+}
+
+function dash() {
+
+    if(player.dashCooldown > 0)
+        return;
+
+    const move = getMovement();
+
+    let x = move.x;
+    let y = move.y;
+
+    if(x === 0 && y === 0)
+        y = -1;
+
+    player.x += x * 250;
+    player.y += y * 250;
+
+    player.invincible = .3;
+    player.dashCooldown = 1.5;
+}
+
+/* =========================================================
+   WEAPON
+========================================================= */
+
+function currentWeapon() {
+    return WEAPONS.find(w => w.id === save.weapon);
+}
+
+function weaponLevel() {
+    return save.weaponLevels[save.weapon] || 1;
+}
+
+function weaponDamage() {
+
+    const w = currentWeapon();
+
+    return w.damage *
+        (1 + (weaponLevel()-1)*.15);
+}
+
+function attack() {
+
+    if(player.attackCooldown > 0)
+        return;
+
+    const w = currentWeapon();
+
+    player.attackCooldown =
+        60 / w.speed;
+
+    let target = null;
+    let best = Infinity;
+
+    for(const e of enemies) {
+
+        const dx = e.x-player.x;
+        const dy = e.y-player.y;
+
+        const dist = Math.hypot(dx,dy);
+
+        if(dist < best && dist < 550) {
+            best = dist;
+            target = e;
+        }
+    }
+
+    if(!target)
+        return;
+
+    const dx = target.x-player.x;
+    const dy = target.y-player.y;
+
+    const len = Math.hypot(dx,dy);
+
+    const vx = dx/len;
+    const vy = dy/len;
+
+    if(w.ranged) {
+
+        projectiles.push({
+            x:player.x,
+            y:player.y,
+            vx:vx*650,
+            vy:vy*650,
+            damage:weaponDamage(),
+            weapon:w.id,
+            life:2
+        });
+
+    } else {
+
+        if(best < 100) {
+
+            damageEnemy(
+                target,
+                weaponDamage()
+            );
+
+            createParticles(
+                target.x,
+                target.y,
+                "#ffffff",
+                8
+            );
+        }
+    }
+}
+
+/* =========================================================
+   ENEMY SPAWN
+========================================================= */
+
+function monsterForLevel() {
+
+    const level = save.level;
+
+    let pool = [];
+
+    if(level < 20) {
+
+        pool = MONSTERS.slice(0,2);
+
+    } else if(level < 50) {
+
+        pool = MONSTERS.slice(0,3);
+
+    } else if(level < 150) {
+
+        pool = MONSTERS.slice(1,5);
+
+    } else if(level < 400) {
+
+        pool = MONSTERS.slice(2,6);
+
+    } else {
+
+        pool = MONSTERS.slice(3);
+    }
+
+    return pool[
+        Math.floor(Math.random()*pool.length)
+    ];
+}
+
+function spawnEnemy() {
+
+    const type = monsterForLevel();
+
+    let angle = Math.random()*Math.PI*2;
+    let distance = 500 + Math.random()*900;
+
+    let x = player.x + Math.cos(angle)*distance;
+    let y = player.y + Math.sin(angle)*distance;
+
+    x = Math.max(80,Math.min(dungeon.width-80,x));
+    y = Math.max(80,Math.min(dungeon.height-80,y));
+
+    const scale =
+        1 + Math.max(0,save.level-1)*.018;
+
+    enemies.push({
+        type:type.id,
+        name:type.name,
+
+        x:x,
+        y:y,
+
+        hp:type.hp*scale,
+        maxHp:type.hp*scale,
+
+        damage:type.damage*scale,
+        speed:type.speed,
+
+        xp:type.xp*scale,
+        coin:type.coin*scale,
+
+        color:type.color,
+
+        boss:!!type.boss,
+        elite:!!type.elite,
+
+        attackCooldown:0,
+        revived:false
+    });
+}
+
+/* =========================================================
+   ENEMY AI
+========================================================= */
+
+function updateEnemies(dt) {
+
+    for(let i=enemies.length-1;i>=0;i--) {
+
+        const e = enemies[i];
+
+        const dx = player.x-e.x;
+        const dy = player.y-e.y;
+
+        const dist = Math.hypot(dx,dy);
+
+        if(dist > 35) {
+
+            e.x += dx/dist*e.speed*dt;
+            e.y += dy/dist*e.speed*dt;
+        }
+
+        if(e.attackCooldown > 0)
+            e.attackCooldown -= dt;
+
+        if(dist < 40 &&
+           e.attackCooldown <= 0 &&
+           player.invincible <= 0) {
+
+            player.hp -= e.damage;
+            e.attackCooldown = 1;
+
+            createParticles(
+                player.x,
+                player.y,
+                "#ff4444",
+                6
+            );
+
+            if(player.hp <= 0) {
+
+                player.hp = player.maxHp;
+
+                player.x = dungeon.width/2;
+                player.y = dungeon.height/2;
+
+                showMessage("💀 쓰러졌지만 다시 일어났습니다!");
+            }
+        }
+    }
+}
+
+/* =========================================================
+   ENEMY DAMAGE
+========================================================= */
+
+function damageEnemy(e,damage) {
+
+    e.hp -= damage;
+
+    if(e.hp <= 0) {
+
+        /*
+         * 피닉스는 한 번 부활
+         */
+        if(e.type === "phoenix" && !e.revived) {
+
+            e.revived = true;
+            e.hp = e.maxHp;
+
+            createParticles(
+                e.x,
+                e.y,
+                "#ff9d22",
+                40
+            );
+
+            showMessage("🔥 피닉스가 부활했습니다!");
+
+            return;
+        }
+
+        addXP(Math.floor(e.xp));
+        addCoin(Math.floor(e.coin));
+
+        createParticles(
+            e.x,
+            e.y,
+            e.color,
+            e.boss ? 40 : 12
+        );
+
+        enemies.splice(
+            enemies.indexOf(e),
+            1
+        );
+
+        if(e.boss) {
+            showMessage(`👑 ${e.name} 처치!`);
+        }
+    }
+}
+
+/* =========================================================
+   PROJECTILES
+========================================================= */
+
+function updateProjectiles(dt) {
+
+    for(let i=projectiles.length-1;i>=0;i--) {
+
+        const p = projectiles[i];
+
+        p.x += p.vx*dt;
+        p.y += p.vy*dt;
+
+        p.life -= dt;
+
+        let hit = false;
+
+        for(const e of enemies) {
+
+            if(
+                Math.hypot(
+                    p.x-e.x,
+                    p.y-e.y
+                ) < 28
+            ) {
+
+                damageEnemy(e,p.damage);
+
+                /*
+                 * 크리스마스 로켓 스킨
+                 * → 양말 + 선물 폭발
+                 */
+                if(
+                    EVENT_MODE === "christmas" &&
+                    save.weapon === "rocket"
+                ) {
+                    createParticles(
+                        p.x,
+                        p.y,
+                        "#ff4b5c",
+                        25
+                    );
+                }
+
+                hit = true;
+                break;
+            }
+        }
+
+        if(
+            hit ||
+            p.life <= 0 ||
+            p.x < 0 ||
+            p.y < 0 ||
+            p.x > dungeon.width ||
+            p.y > dungeon.height
+        ) {
+            projectiles.splice(i,1);
+        }
+    }
+}
+
+/* =========================================================
+   PARTICLES
+========================================================= */
+
+function createParticles(x,y,color,count) {
+
+    for(let i=0;i<count;i++) {
+
+        particles.push({
+            x:x,
+            y:y,
+
+            vx:(Math.random()-.5)*180,
+            vy:(Math.random()-.5)*180,
+
+            life:.5+Math.random()*.6,
+
+            color:color,
+
+            size:3+Math.random()*5
+        });
+    }
+}
+
+function updateParticles(dt) {
+
+    for(let i=particles.length-1;i>=0;i--) {
+
+        const p = particles[i];
+
+        p.x += p.vx*dt;
+        p.y += p.vy*dt;
+
+        p.vx *= .97;
+        p.vy *= .97;
+
+        p.life -= dt;
+
+        if(p.life <= 0)
+            particles.splice(i,1);
+    }
+}
+
+/* =========================================================
+   DRAW
+========================================================= */
+
+function worldToScreen(x,y) {
+
+    return {
+        x:x-camera.x,
+        y:y-camera.y
+    };
+}
+
+function drawBackground() {
+
+    ctx.fillStyle =
+        EVENT_MODE === "halloween"
+        ? "#17100c"
+        : EVENT_MODE === "christmas"
+        ? "#0b1720"
+        : "#111722";
+
+    ctx.fillRect(0,0,W,H);
+
+    const tile = 80;
+
+    const startX =
+        Math.floor(camera.x/tile)*tile;
+
+    const startY =
+        Math.floor(camera.y/tile)*tile;
+
+    for(let x=startX;x<camera.x+W+tile;x+=tile) {
+
+        for(let y=startY;y<camera.y+H+tile;y+=tile) {
+
+            const s = worldToScreen(x,y);
+
+            if(
+                EVENT_MODE === "christmas"
+            ) {
+
+                ctx.fillStyle =
+                    ((x/tile+y/tile)%2===0)
+                    ? "#152833"
+                    : "#13232d";
+
+            } else if(
+                EVENT_MODE === "halloween"
+            ) {
+
+                ctx.fillStyle =
+                    ((x/tile+y/tile)%2===0)
+                    ? "#24170f"
+                    : "#1e140e";
+
+            } else {
+
+                ctx.fillStyle =
+                    ((x/tile+y/tile)%2===0)
+                    ? "#171f2b"
+                    : "#141b25";
+            }
+
+            ctx.fillRect(
+                s.x,
+                s.y,
+                tile,
+                tile
+            );
+        }
+    }
+}
+
+function drawPlayer() {
+
+    const p = worldToScreen(
+        player.x,
+        player.y
+    );
+
+    ctx.save();
+
+    if(player.invincible > 0) {
+        ctx.globalAlpha = .5;
+    }
+
+    /*
+     * 몸
+     */
+    ctx.fillStyle = "#4d8cff";
+
+    ctx.beginPath();
+    ctx.arc(
+        p.x,
+        p.y,
+        player.radius,
+        0,
+        Math.PI*2
+    );
+
+    ctx.fill();
+
+    /*
+     * 얼굴
+     */
+    ctx.fillStyle = "#ffd3ad";
+
+    ctx.beginPath();
+    ctx.arc(
+        p.x,
+        p.y-4,
+        10,
+        0,
+        Math.PI*2
+    );
+
+    ctx.fill();
+
+    /*
+     * 머리 장식
+     */
+    const head =
+        save.equippedCosmetics.head;
+
+    if(head === "santaHat") {
+
+        ctx.fillStyle = "#e53935";
+
+        ctx.fillRect(
+            p.x-12,
+            p.y-24,
+            24,
+            13
+        );
+
+        ctx.fillStyle = "#fff";
+
+        ctx.fillRect(
+            p.x-13,
+            p.y-27,
+            26,
+            5
+        );
+
+    } else if(head === "pumpkin") {
+
+        ctx.fillStyle = "#ff8b1a";
+
+        ctx.beginPath();
+
+        ctx.arc(
+            p.x,
+            p.y-7,
+            13,
+            0,
+            Math.PI*2
+        );
+
+        ctx.fill();
+
+        ctx.fillStyle = "#111";
+
+        ctx.fillRect(
+            p.x-7,
+            p.y-10,
+            4,
+            4
+        );
+
+        ctx.fillRect(
+            p.x+3,
+            p.y-10,
+            4,
+            4
+        );
+    }
+
+    ctx.restore();
+}
+
+function drawVehicle() {
+
+    const vehicle =
+        VEHICLES.find(v => v.id === save.vehicle);
+
+    if(!vehicle)
+        return;
+
+    const p = worldToScreen(
+        player.x,
+        player.y
+    );
+
+    /*
+     * 탈것은 캐릭터 뒤쪽에 표시
+     */
+
+    ctx.save();
+
+    if(save.vehicle === "bike") {
+
+        ctx.strokeStyle="#bbb";
+        ctx.lineWidth=4;
+
+        ctx.beginPath();
+        ctx.arc(
+            p.x-16,
+            p.y+16,
+            10,
+            0,
+            Math.PI*2
+        );
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(
+            p.x+16,
+            p.y+16,
+            10,
+            0,
+            Math.PI*2
+        );
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(p.x-16,p.y+16);
+        ctx.lineTo(p.x,p.y);
+        ctx.lineTo(p.x+16,p.y+16);
+        ctx.stroke();
+
+    } else if(save.vehicle === "car") {
+
+        ctx.fillStyle =
+            EVENT_MODE === "christmas"
+            ? "#d83434"
+            : "#4285f4";
+
+        ctx.fillRect(
+            p.x-30,
+            p.y+8,
+            60,
+            22
+        );
+
+        ctx.fillStyle="#111";
+
+        ctx.beginPath();
+        ctx.arc(p.x-18,p.y+31,7,0,Math.PI*2);
+        ctx.arc(p.x+18,p.y+31,7,0,Math.PI*2);
+        ctx.fill();
+
+        /*
+         * 산타 썰매 스킨
+         */
+        if(
+            EVENT_MODE === "christmas" &&
+            save.vehicle === "car"
+        ) {
+
+            ctx.fillStyle="#ffd33d";
+
+            ctx.fillRect(
+                p.x-20,
+                p.y+4,
+                40,
+                6
+            );
+        }
+
+    } else if(save.vehicle === "plane") {
+
+        ctx.fillStyle="#aaa";
+
+        ctx.beginPath();
+
+        ctx.moveTo(p.x+35,p.y);
+        ctx.lineTo(p.x-25,p.y-15);
+        ctx.lineTo(p.x-10,p.y);
+        ctx.lineTo(p.x-25,p.y+15);
+        ctx.closePath();
+
+        ctx.fill();
+
+    } else if(save.vehicle === "fighter") {
+
+        ctx.fillStyle="#707b8c";
+
+        ctx.beginPath();
+
+        ctx.moveTo(p.x+42,p.y);
+        ctx.lineTo(p.x-25,p.y-12);
+        ctx.lineTo(p.x-8,p.y);
+        ctx.lineTo(p.x-25,p.y+12);
+        ctx.closePath();
+
+        ctx.fill();
+
+        ctx.fillStyle="#e83b3b";
+
+        ctx.fillRect(
+            p.x-5,
+            p.y-3,
+            22,
+            6
+        );
+    }
+
+    ctx.restore();
+}
+
+function drawEnemies() {
+
+    for(const e of enemies) {
+
+        const p = worldToScreen(
+            e.x,
+            e.y
+        );
+
+        /*
+         * 크리스마스 이벤트 몬스터 장식
+         */
+        let color = e.color;
+
+        ctx.save();
+
+        if(EVENT_MODE === "christmas") {
+
+            if(e.type === "slime") {
+
+                color = "#63e5ff";
+
+            } else if(e.type === "goblin") {
+
+                color = "#67d6a0";
+            }
+        }
+
+        /*
+         * 할로윈
+         */
+        if(EVENT_MODE === "halloween") {
+
+            if(e.type === "slime")
+                color = "#ff8b1c";
+
+            if(e.type === "goblin")
+                color = "#6d3d9d";
+        }
+
+        ctx.fillStyle=color;
+
+        ctx.beginPath();
+
+        ctx.arc(
+            p.x,
+            p.y,
+            e.boss ? 38 :
+            e.elite ? 28 :
+            22,
+            0,
+            Math.PI*2
+        );
+
+        ctx.fill();
+
+        /*
+         * HP 바
+         */
+        const barW =
+            e.boss ? 90 :
+            e.elite ? 65 :
+            45;
+
+        ctx.fillStyle="#111";
+
+        ctx.fillRect(
+            p.x-barW/2,
+            p.y-48,
+            barW,
+            6
+        );
+
+        ctx.fillStyle="#ff4242";
+
+        ctx.fillRect(
+            p.x-barW/2,
+            p.y-48,
+            barW*(e.hp/e.maxHp),
+            6
+        );
+
+        ctx.fillStyle="#fff";
+
+        ctx.font =
+            e.boss ? "bold 14px Arial" :
+            "11px Arial";
+
+        ctx.textAlign="center";
+
+        ctx.fillText(
+            e.name,
+            p.x,
+            p.y-55
+        );
+
+        ctx.restore();
+    }
+}
+
+function drawProjectiles() {
+
+    for(const p of projectiles) {
+
+        const s =
+            worldToScreen(p.x,p.y);
+
+        let text = "●";
+
+        if(
+            EVENT_MODE === "christmas" &&
+            p.weapon === "rocket"
+        ) {
+            text = "🧦";
+        } else if(p.weapon === "rocket") {
+            text = "🚀";
+        } else if(p.weapon === "zeus") {
+            text = "⚡";
+        } else if(p.weapon === "poseidon") {
+            text = "🔱";
+        } else if(p.weapon === "pen") {
+            text = "🖊️";
+        }
+
+        ctx.font="24px Arial";
+        ctx.textAlign="center";
+
+        ctx.fillText(
+            text,
+            s.x,
+            s.y
+        );
+    }
+}
+
+function drawParticles() {
+
+    for(const p of particles) {
+
+        const s =
+            worldToScreen(p.x,p.y);
+
+        ctx.globalAlpha =
+            Math.max(0,p.life);
+
+        ctx.fillStyle=p.color;
+
+        ctx.fillRect(
+            s.x,
+            s.y,
+            p.size,
+            p.size
+        );
+    }
+
+    ctx.globalAlpha=1;
+}
+
+function render() {
+
+    drawBackground();
+
+    /*
+     * 카메라
+     */
+    camera.x =
+        player.x-W/2;
+
+    camera.y =
+        player.y-H/2;
+
+    camera.x =
+        Math.max(
+            0,
+            Math.min(
+                dungeon.width-W,
+                camera.x
+            )
+        );
+
+    camera.y =
+        Math.max(
+            0,
+            Math.min(
+                dungeon.height-H,
+                camera.y
+            )
+        );
+
+    drawVehicle();
+    drawEnemies();
+    drawProjectiles();
+    drawParticles();
+    drawPlayer();
+}
+
+/* =========================================================
+   UI
+========================================================= */
+
+function updateHUD() {
+
+    document.getElementById("levelText")
+        .textContent =
+        `Lv. ${save.level} / 2000`;
+
+    document.getElementById("hpText")
+        .textContent =
+        `${Math.floor(player.hp)} / ${player.maxHp}`;
+
+    document.getElementById("coinText")
+        .textContent =
+        save.coin.toLocaleString();
+
+    document.getElementById("lpText")
+        .textContent =
+        save.lp.toLocaleString();
+
+    document.getElementById("starText")
+        .textContent =
+        save.star.toLocaleString();
+
+    document.getElementById("weaponText")
+        .textContent =
+        displayedWeaponName();
+
+    const vehicle =
+        VEHICLES.find(v => v.id === save.vehicle);
+
+    document.getElementById("vehicleText")
+        .textContent =
+        displayedVehicleName(vehicle);
+
+    const need =
+        xpRequired(save.level);
+
+    document.getElementById("xpText")
+        .textContent =
+        `${Math.floor(save.xp).toLocaleString()} / ${need.toLocaleString()}`;
+
+    document.getElementById("xpFill")
+        .style.width =
+        Math.min(
+            100,
+            save.xp/need*100
+        ) + "%";
+
+    document.getElementById("hpFill")
+        .style.width =
+        Math.max(
+            0,
+            player.hp/player.maxHp*100
+        ) + "%";
+}
+
+function displayedWeaponName() {
+
+    const w = currentWeapon();
+
+    if(
+        EVENT_MODE === "christmas" &&
+        w.skin &&
+        w.skin.event === "christmas"
+    ) {
+        return w.skin.name;
+    }
+
+    return w.name;
+}
+
+function displayedVehicleName(v) {
+
+    if(
+        EVENT_MODE === "christmas" &&
+        v &&
+        v.skin &&
+        v.skin.event === "christmas"
+    ) {
+        return v.skin.name;
+    }
+
+    return v ? v.name : "";
+}
+
+function showMessage(text) {
+
+    const el =
+        document.getElementById("message");
+
+    el.textContent=text;
+    el.style.opacity=1;
+
+    clearTimeout(showMessage.timer);
+
+    showMessage.timer =
+        setTimeout(() => {
+            el.style.opacity=0;
+        },2000);
+}
+
+/* =========================================================
+   PANELS
+========================================================= */
+
+function openPanel(type) {
+
+    const panel =
+        document.getElementById("panel");
+
+    panel.style.display="block";
+
+    if(type === "shop")
+        panel.innerHTML = shopHTML();
+
+    if(type === "inventory")
+        panel.innerHTML = inventoryHTML();
+
+    if(type === "character")
+        panel.innerHTML = characterHTML();
+
+    if(type === "info")
+        panel.innerHTML = infoHTML();
+}
+
+function closePanel() {
+
+    document.getElementById("panel")
+        .style.display="none";
+}
+
+/* =========================================================
+   SHOP
+========================================================= */
+
+function shopHTML() {
+
+    let html = `
+        <button class="close"
+                onclick="closePanel()">X</button>
+
+        <h2>🛒 상점</h2>
+
+        <h3>기본 상점</h3>
+        <div class="grid">
+    `;
+
+    for(const w of WEAPONS) {
+
+        const owned =
+            save.weaponsOwned.includes(w.id);
+
+        const level =
+            save.weaponLevels[w.id] || 1;
+
+        html += `
+            <div class="card ${owned ? "equipped":""}">
+                <h3>⚔️ ${w.name}</h3>
+
+                <p>
+                    공격력:
+                    ${Math.floor(
+                        w.damage*(1+(level-1)*.15)
+                    )}
+                </p>
+
+                ${
+                    owned
+                    ? `
+                        <p>
+                            강화 Lv.${level}
+                        </p>
+
+                        <button onclick="upgradeWeapon('${w.id}')">
+                            🪙 ${upgradeCost(w.id).toLocaleString()}
+                            강화
+                        </button>
+
+                        <button onclick="equipWeapon('${w.id}')">
+                            장착
+                        </button>
+                    `
+                    : `
+                        <p class="price">
+                            🪙 ${w.cost.toLocaleString()}
+                        </p>
+
+                        <button onclick="buyWeapon('${w.id}')">
+                            구매
+                        </button>
+                    `
+                }
+
+                ${
+                    w.skin
+                    ? `<p>🎄 이벤트 스킨:
+                       ${w.skin.name}</p>`
+                    : ""
+                }
+            </div>
+        `;
+    }
+
+    html += `
+        </div>
+
+        <h3 style="margin-top:25px">
+            🚲 탈것
+        </h3>
+
+        <div class="grid">
+    `;
+
+    for(const v of VEHICLES) {
+
+        const owned =
+            save.vehicleOwned.includes(v.id);
+
+        html += `
+            <div class="card">
+                <h3>🚗 ${v.name}</h3>
+
+                <p>
+                    이동속도 ×${v.speed}
+                </p>
+
+                ${
+                    owned
+                    ? `
+                    <button onclick="equipVehicle('${v.id}')">
+                        장착
+                    </button>
+                    `
+                    : `
+                    <p class="star">
+                        ⭐ ${v.cost}
+                    </p>
+
+                    <button onclick="buyVehicle('${v.id}')">
+                        구매
+                    </button>
+                    `
+                }
+
+                ${
+                    v.skin
+                    ? `<p>🎄 크리스마스 스킨:
+                       ${v.skin.name}</p>`
+                    : ""
+                }
+            </div>
+        `;
+    }
+
+    html += `
+        </div>
+
+        <h3 style="margin-top:25px">
+            ⭐ Star 아이템
+        </h3>
+
+        <div class="card">
+            <h3>⭐ 한정 콘텐츠</h3>
+            <p>
+                이벤트 기간에만 판매되는
+                특별 아이템입니다.
+            </p>
+
+            <button onclick="buySpecial('christmasWeapon')">
+                🎄 캔디 지팡이 스킨 ⭐150
+            </button>
+
+            <button onclick="buySpecial('sockLauncher')">
+                🧦 양말 발사기 스킨 ⭐500
+            </button>
+
+            <button onclick="buySpecial('santaSleigh')">
+                🛷 산타 썰매 스킨 ⭐300
+            </button>
+        </div>
+
+        <h3 style="margin-top:25px">
+            🎁 일일 상점
+        </h3>
+
+        ${dailyShopHTML()}
+    `;
+
+    return html;
+}
+
+function upgradeCost(id) {
+
+    const level =
+        save.weaponLevels[id] || 1;
+
+    return Math.floor(
+        100 * level * level
+    );
+}
+
+function buyWeapon(id) {
+
+    const w =
+        WEAPONS.find(x => x.id === id);
+
+    if(save.weaponsOwned.includes(id)) {
+        showMessage("이미 가지고 있습니다.");
+        return;
+    }
+
+    if(save.coin < w.cost) {
+        showMessage("🪙 코인이 부족합니다.");
+        return;
+    }
+
+    save.coin -= w.cost;
+
+    save.weaponsOwned.push(id);
+
+    save.weaponLevels[id]=1;
+
+    saveGame();
+
+    showMessage(`${w.name} 구매 완료!`);
+
+    openPanel("shop");
+}
+
+function equipWeapon(id) {
+
+    if(!save.weaponsOwned.includes(id))
+        return;
+
+    save.weapon=id;
+
+    saveGame();
+
+    showMessage(
+        `${displayedWeaponName()} 장착!`
+    );
+
+    openPanel("inventory");
+}
+
+function upgradeWeapon(id) {
+
+    if(!save.weaponsOwned.includes(id))
+        return;
+
+    const level =
+        save.weaponLevels[id] || 1;
+
+    if(level >= 100) {
+        showMessage("최대 강화 레벨입니다.");
+        return;
+    }
+
+    const cost =
+        upgradeCost(id);
+
+    if(save.coin < cost) {
+        showMessage("🪙 코인이 부족합니다.");
+        return;
+    }
+
+    save.coin -= cost;
+
+    save.weaponLevels[id]=level+1;
+
+    saveGame();
+
+    showMessage(
+        `⚔️ 무기 강화! Lv.${level+1}`
+    );
+
+    openPanel("shop");
+}
+
+function buyVehicle(id) {
+
+    const v =
+        VEHICLES.find(x => x.id === id);
+
+    if(save.vehicleOwned.includes(id))
+        return;
+
+    if(save.star < v.cost) {
+        showMessage("⭐ Star가 부족합니다.");
+        return;
+    }
+
+    save.star -= v.cost;
+
+    save.vehicleOwned.push(id);
+
+    saveGame();
+
+    showMessage(`${v.name} 구매 완료!`);
+
+    openPanel("shop");
+}
+
+function equipVehicle(id) {
+
+    if(!save.vehicleOwned.includes(id))
+        return;
+
+    save.vehicle=id;
+
+    saveGame();
+
+    showMessage(
+        `${displayedVehicleName(
+            VEHICLES.find(v=>v.id===id)
+        )} 장착!`
+    );
+
+    openPanel("shop");
+}
+
+function buySpecial(type) {
+
+    if(EVENT_MODE !== "christmas") {
+
+        showMessage(
+            "🎄 크리스마스 이벤트 기간에만 구매할 수 있습니다."
+        );
+
+        return;
+    }
+
+    const prices = {
+        christmasWeapon:150,
+        sockLauncher:500,
+        santaSleigh:300
+    };
+
+    const price = prices[type];
+
+    if(save.star < price) {
+
+        showMessage("⭐ Star가 부족합니다.");
+
+        return;
+    }
+
+    save.star -= price;
+
+    showMessage(
+        "🎁 크리스마스 한정 아이템 획득!"
+    );
+
+    saveGame();
+
+    openPanel("shop");
+}
+
+/* =========================================================
+   DAILY SHOP
+========================================================= */
+
+function dailySeed() {
+
+    const today =
+        new Date().toISOString().slice(0,10);
+
+    let hash=0;
+
+    for(const c of today)
+        hash =
+            ((hash<<5)-hash)+c.charCodeAt(0);
+
+    return Math.abs(hash);
+}
+
+function dailyShopHTML() {
+
+    const seed=dailySeed();
+
+    const items = [
+        {
+            name:"기본 캐릭터 스킨",
+            price:20,
+            rarity:"일반",
+            chance:60
+        },
+        {
+            name:"희귀 캐릭터 스킨",
+            price:50,
+            rarity:"희귀",
+            chance:25
+        },
+        {
+            name:"한정 캐릭터 스킨",
+            price:100,
+            rarity:"한정",
+            chance:10
+        },
+        {
+            name:"초희귀 한정 아이템",
+            price:300,
+            rarity:"초희귀",
+            chance:5
+        }
+    ];
+
+    /*
+     * 날짜 기반으로 상품 선정
+     */
+    const item =
+        items[
+            seed % items.length
+        ];
+
+    return `
+        <div class="card">
+            <h3>🎁 오늘의 상품</h3>
+
+            <p>
+                상품 등급:
+                <b>${item.rarity}</b>
+            </p>
+
+            <p>
+                등장 확률:
+                ${item.chance}%
+            </p>
+
+            <p>
+                ⭐ ${item.price}
+            </p>
+
+            <button onclick="buyDaily('${item.name}',${item.price})">
+                구매
+            </button>
+
+            <p>
+                ※ 매일 00:00에 상품이 변경됩니다.
+            </p>
+        </div>
+    `;
+}
+
+function buyDaily(name,price) {
+
+    if(save.star < price) {
+
+        showMessage("⭐ Star가 부족합니다.");
+
+        return;
+    }
+
+    save.star -= price;
+
+    showMessage(
+        `🎁 ${name} 획득!`
+    );
+
+    saveGame();
+
+    openPanel("shop");
+}
+
+/* =========================================================
+   INVENTORY
+========================================================= */
+
+function inventoryHTML() {
+
+    let html = `
+        <button class="close"
+                onclick="closePanel()">X</button>
+
+        <h2>🎒 장비</h2>
+
+        <h3>무기</h3>
+
+        <div class="grid">
+    `;
+
+    for(const id of save.weaponsOwned) {
+
+        const w =
+            WEAPONS.find(x=>x.id===id);
+
+        const level =
+            save.weaponLevels[id] || 1;
+
+        html += `
+            <div class="card ${
+                save.weapon===id
+                ? "equipped"
+                : ""
+            }">
+
+                <h3>${w.name}</h3>
+
+                <p>강화 Lv.${level}</p>
+
+                <p>
+                    공격력:
+                    ${Math.floor(
+                        w.damage*(1+(level-1)*.15)
+                    )}
+                </p>
+
+                <button onclick="equipWeapon('${id}')">
+                    ${save.weapon===id ? "장착 중" : "장착"}
+                </button>
+
+            </div>
+        `;
+    }
+
+    html += `
+        </div>
+
+        <h3>탈것</h3>
+
+        <div class="grid">
+    `;
+
+    for(const id of save.vehicleOwned) {
+
+        const v =
+            VEHICLES.find(x=>x.id===id);
+
+        html += `
+            <div class="card ${
+                save.vehicle===id
+                ? "equipped"
+                : ""
+            }">
+
+                <h3>${displayedVehicleName(v)}</h3>
+
+                <p>
+                    속도 ×${v.speed}
+                </p>
+
+                <button onclick="equipVehicle('${id}')">
+                    ${save.vehicle===id
+                    ? "장착 중"
+                    : "장착"}
+                </button>
+
+            </div>
+        `;
+    }
+
+    html += `</div>`;
+
+    return html;
+}
+
+/* =========================================================
+   CHARACTER
+========================================================= */
+
+function characterHTML() {
+
+    let html = `
+        <button class="close"
+                onclick="closePanel()">X</button>
+
+        <h2>👤 캐릭터 꾸미기</h2>
+
+        <div class="grid">
+    `;
+
+    for(const c of COSMETICS) {
+
+        const owned =
+            save.cosmeticsOwned.includes(c.id);
+
+        const eventAvailable =
+            !c.event ||
+            c.event === EVENT_MODE;
+
+        html += `
+            <div class="card ${
+                owned &&
+                (
+                    save.equippedCosmetics.head===c.id ||
+                    save.equippedCosmetics.skin===c.id ||
+                    save.equippedCosmetics.back===c.id
+                )
+                ? "equipped"
+                : ""
+            } ${
+                !eventAvailable
+                ? "locked"
+                : ""
+            }">
+
+                <h3>${c.name}</h3>
+
+                <p>
+                    종류: ${c.type}
+                </p>
+
+                ${
+                    c.event
+                    ? `<p>이벤트: ${c.event}</p>`
+                    : ""
+                }
+
+                ${
+                    owned
+                    ? `
+                    <button onclick="equipCosmetic('${c.id}')">
+                        장착
+                    </button>
+                    `
+                    : `
+                    <p class="star">
+                        ⭐ ${c.cost}
+                    </p>
+
+                    <button onclick="buyCosmetic('${c.id}')"
+                        ${!eventAvailable ? "disabled":""}>
+                        구매
+                    </button>
+                    `
+                }
+            </div>
+        `;
+    }
+
+    html += `
+        </div>
+    `;
+
+    return html;
+}
+
+function buyCosmetic(id) {
+
+    const c =
+        COSMETICS.find(x=>x.id===id);
+
+    if(c.event && c.event !== EVENT_MODE) {
+
+        showMessage(
+            "현재 이벤트에서 판매하지 않습니다."
+        );
+
+        return;
+    }
+
+    if(save.cosmeticsOwned.includes(id))
+        return;
+
+    if(save.star < c.cost) {
+
+        showMessage("⭐ Star가 부족합니다.");
+
+        return;
+    }
+
+    save.star -= c.cost;
+
+    save.cosmeticsOwned.push(id);
+
+    saveGame();
+
+    showMessage(`${c.name} 획득!`);
+
+    openPanel("character");
+}
+
+function equipCosmetic(id) {
+
+    const c =
+        COSMETICS.find(x=>x.id===id);
+
+    if(!save.cosmeticsOwned.includes(id))
+        return;
+
+    if(c.type === "skin")
+        save.equippedCosmetics.skin=id;
+
+    if(c.type === "head")
+        save.equippedCosmetics.head=id;
+
+    if(c.type === "back")
+        save.equippedCosmetics.back=id;
+
+    saveGame();
+
+    showMessage(`${c.name} 장착!`);
+
+    openPanel("character");
+}
+
+/* =========================================================
+   INFO
+========================================================= */
+
+function infoHTML() {
+
+    return `
+        <button class="close"
+                onclick="closePanel()">X</button>
+
+        <h2>ℹ️ 게임 정보</h2>
+
+        <div class="card">
+
+            <h3>레벨 시스템</h3>
+
+            <p>
+                최대 레벨: 2000
+            </p>
+
+            <p>
+                현재 레벨에서 다음 레벨로 가려면
+                <b>현재 레벨 × 5 XP</b>가 필요합니다.
+            </p>
+
+            <p>
+                Lv.1 → Lv.2 = 5 XP<br>
+                Lv.2 → Lv.3 = 10 XP<br>
+                Lv.3 → Lv.4 = 15 XP
+            </p>
+
+        </div>
+
+        <div class="card">
+
+            <h3>재화</h3>
+
+            <p>🪙 Coin → 무기 구매 및 업그레이드</p>
+
+            <p>🔵 LP → 레벨업으로 획득하는 성장 포인트</p>
+
+            <p>⭐ Star → 희귀/한정 아이템</p>
+
+        </div>
+
+        <div class="card">
+
+            <h3>조작</h3>
+
+            <p>PC: WASD / 방향키로 이동</p>
+            <p>PC: 마우스로 공격</p>
+            <p>Space: 대시</p>
+            <p>모바일: 왼쪽 조이스틱 이동</p>
+            <p>모바일: 공격 버튼</p>
+        </div>
+
+        <div class="card">
+
+            <h3>🎄 크리스마스 스킨</h3>
+
+            <p>
+                쇠파이프 →
+                🍭 크리스마스 캔디 지팡이
+            </p>
+
+            <p>
+                로켓 발사기 →
+                🧦 크리스마스 양말 발사기
+            </p>
+
+            <p>
+                자동차 →
+                🛷 산타 썰매
+            </p>
+
+        </div>
+
+        <div class="card">
+
+            <h3>몬스터</h3>
+
+            <p>
+                슬라임 / 고블린 / 오니 /
+                슬라임 왕족 / 데몬 병사 /
+                데몬 병장 / 최강 악마 /
+                피닉스 / 마녀
+            </p>
+
+        </div>
+    `;
+}
+
+/* =========================================================
+   GAME LOOP
+========================================================= */
+
+let lastTime = performance.now();
+
+function gameLoop(now) {
+
+    const dt =
+        Math.min(
+            .05,
+            (now-lastTime)/1000
+        );
+
+    lastTime=now;
+
+    updatePlayer(dt);
+    updateEnemies(dt);
+    updateProjectiles(dt);
+    updateParticles(dt);
+
+    /*
+     * 적 자동 생성
+     */
+    const maxEnemies =
+        8 +
+        Math.floor(save.level/50);
+
+    if(
+        enemies.length < Math.min(maxEnemies,25)
+    ) {
+        spawnEnemy();
+    }
+
+    /*
+     * 자동 공격이 아니라
+     * PC 마우스 홀드 시 공격
+     */
+    if(mouse.down)
+        attack();
+
+    render();
+    updateHUD();
+
+    requestAnimationFrame(gameLoop);
+}
+
+/* =========================================================
+   INITIALIZE
+========================================================= */
+
+player.x=dungeon.width/2;
+player.y=dungeon.height/2;
+
+for(let i=0;i<7;i++)
+    spawnEnemy();
+
+updateHUD();
+
+requestAnimationFrame(gameLoop);
+
+/* =========================================================
+   DEVELOPMENT COMMANDS
+   브라우저 콘솔에서 테스트 가능
+========================================================= */
+
+window.game = {
+
+    addXP(amount) {
+        addXP(amount);
+    },
+
+    addCoin(amount) {
+        addCoin(amount);
+    },
+
+    addStar(amount) {
+        addStar(amount);
+    },
+
+    levelUp() {
+        if(save.level < 2000) {
+            save.level++;
+            save.lp++;
+            saveGame();
+        }
+    },
+
+    reset() {
+        localStorage.removeItem(
+            "dungeonSeasonsSave"
+        );
+
+        location.reload();
+    },
+
+    setLevel(level) {
+        save.level =
+            Math.max(
+                1,
+                Math.min(2000,level)
+            );
+
+        saveGame();
+    }
+};
+</script>
+
+</body>
+</html>
